@@ -35,6 +35,46 @@ static Elm_Code *_debug_output;
 #define DEBUG_PROCESS_SLEEPING 0
 #define DEBUG_PROCESS_ACTIVE 1
 
+typedef struct _Edi_Debug_Tool {
+   const char *name;
+   const char *exec;
+   const char *arguments;
+   const char *command_start;
+   const char *command_continue;
+   const char *command_arguments;
+   Eina_Bool is_debugger;
+} Edi_Debug_Tool;
+
+static Edi_Debug_Tool _debugger_tools[] = {
+    { "gdb", "gdb", NULL, "run\n", "c\n","set args %s", EINA_TRUE },
+    { "lldb", "lldb", NULL, "run\n", "c\n", "settings set target.run-args %s", EINA_TRUE },
+    { "pdb", "pdb", NULL, NULL, "c\n", "run %s", EINA_TRUE },
+    { "memcheck", "valgrind", "--tool=memcheck", NULL, NULL, NULL, EINA_FALSE },
+    { "massif", "valgrind", "--tool=massif", NULL, NULL, NULL, EINA_FALSE },
+    { "callgrind", "valgrind", "--tool=callgrind", NULL, NULL, NULL, EINA_FALSE },
+    { NULL, NULL, NULL, NULL, NULL, NULL, EINA_FALSE },
+};
+
+static Edi_Debug_Tool *_debugger = NULL;
+static char _debugger_cmd[1024];
+
+static Edi_Debug_Tool *
+_edi_debug_tool_get(const char *name)
+{
+   int i;
+
+   for (i = 0; _debugger_tools[i].name; i++)
+      {
+         if (!strcmp(_debugger_tools[i].name, name))
+           {
+              _debugger = &_debugger_tools[i];
+              return _debugger;
+           }
+      }
+
+    return NULL;
+}
+
 static void
 _edi_debugpanel_line_cb(void *data EINA_UNUSED, const Efl_Event *event)
 {
@@ -131,7 +171,6 @@ _edi_debugpanel_keypress_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Ob
 }
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
-
 static long int
 _sysctlfromname(const char *name, void *mib, int depth, size_t *len)
 {
@@ -348,8 +387,8 @@ _edi_debugpanel_bt_sigint_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSE
 
    if (state == DEBUG_PROCESS_ACTIVE)
      kill(pid, SIGINT);
-   else
-     ecore_exe_send(_debug_exe, "c\n", 2);
+   else if (_debugger->command_continue)
+     ecore_exe_send(_debug_exe, _debugger->command_continue, strlen(_debugger->command_continue));
 
     _edi_debugpanel_icons_update(state);
 }
@@ -363,7 +402,7 @@ _edi_debugpanel_button_quit_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNU
 static void
 _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
-   edi_debugpanel_start();
+   edi_debugpanel_start(_debugger->name);
 }
 
 static Eina_Bool
@@ -407,12 +446,39 @@ void edi_debugpanel_stop(void)
    elm_object_disabled_set(_button_term, EINA_TRUE);
 }
 
-void edi_debugpanel_start(void)
+static void
+_edi_debugger_run(Edi_Debug_Tool *tool)
 {
-   char cmd[1024];
+   const char *fmt;
    char *args;
    int len;
-   const char *warning, *mime, *fmt;
+
+   _debug_exe = ecore_exe_pipe_run(_debugger_cmd, ECORE_EXE_PIPE_WRITE |
+                                   ECORE_EXE_PIPE_ERROR |
+                                   ECORE_EXE_PIPE_READ, NULL);
+
+   ecore_event_handler_add(ECORE_EXE_EVENT_DATA, _debugpanel_stdout_handler, NULL);
+   ecore_event_handler_add(ECORE_EXE_EVENT_ERROR, _debugpanel_stdout_handler, NULL);
+
+   if (tool->is_debugger && _edi_project_config->launch.args)
+     {
+        fmt = _debugger->command_arguments;
+        len = strlen(fmt) + strlen(_edi_project_config->launch.args) + 1;
+        args = malloc(len);
+        snprintf(args, len, fmt, _edi_project_config->launch.args);
+        ecore_exe_send(_debug_exe, args, strlen(args));
+        free(args);
+     }
+
+   if (_debugger->command_start)
+     ecore_exe_send(_debug_exe, _debugger->command_start, strlen(_debugger->command_start));
+
+}
+
+void edi_debugpanel_start(const char *toolname)
+{
+   Edi_Debug_Tool *tool;
+   const char *warning, *mime;
 
    if (!_edi_project_config->launch.path)
      {
@@ -429,35 +495,28 @@ void edi_debugpanel_start(void)
         return;
      }
 
+   tool = _edi_debug_tool_get(toolname);
+   if (!tool || !ecore_file_app_installed(tool->exec))
+     {
+        warning = _("Warning: debug tool is not installed.");
+        elm_code_file_line_append(_debug_output->file, warning, strlen(warning), NULL);
+        return;
+     }
+
    mime = efreet_mime_type_get(_edi_project_config->launch.path);
    if (!strcmp(mime, "application/x-shellscript"))
-     snprintf(cmd, sizeof(cmd), LIBTOOL_COMMAND " --mode execute gdb %s", _edi_project_config->launch.path);
+     snprintf(_debugger_cmd, sizeof(_debugger_cmd), LIBTOOL_COMMAND " --mode execute %s %s", tool->exec, _edi_project_config->launch.path);
+   else if (tool->arguments)
+     snprintf(_debugger_cmd, sizeof(_debugger_cmd), "%s %s %s", tool->exec, tool->arguments, _edi_project_config->launch.path);
    else
-     snprintf(cmd, sizeof(cmd), "gdb %s", _edi_project_config->launch.path);
-
-   _debug_exe = ecore_exe_pipe_run(cmd, ECORE_EXE_PIPE_WRITE |
-                                        ECORE_EXE_PIPE_ERROR |
-                                        ECORE_EXE_PIPE_READ, NULL);
-
-   ecore_event_handler_add(ECORE_EXE_EVENT_DATA, _debugpanel_stdout_handler, NULL);
-   ecore_event_handler_add(ECORE_EXE_EVENT_ERROR, _debugpanel_stdout_handler, NULL);
+     snprintf(_debugger_cmd, sizeof(_debugger_cmd), "%s %s", tool->exec, _edi_project_config->launch.path);
 
    elm_object_disabled_set(_button_int, EINA_FALSE);
    elm_object_disabled_set(_button_term, EINA_FALSE);
    elm_object_disabled_set(_button_quit, EINA_FALSE);
-
-   if (_edi_project_config->launch.args)
-     {
-        fmt = "set args %s\n";
-        len = strlen(fmt) + strlen(_edi_project_config->launch.args) + 1;
-        args = malloc(len);
-        snprintf(args, len, fmt, _edi_project_config->launch.args);
-        ecore_exe_send(_debug_exe, args, strlen(args));
-        free(args);
-     }
-
-   ecore_exe_send(_debug_exe, "run\n", 4);
    elm_object_disabled_set(_button_start, EINA_TRUE);
+
+   _edi_debugger_run(tool);
 }
 
 void edi_debugpanel_add(Evas_Object *parent)
