@@ -42,17 +42,16 @@ typedef struct _Edi_Debug_Tool {
    const char *command_start;
    const char *command_continue;
    const char *command_arguments;
-   Eina_Bool is_debugger;
 } Edi_Debug_Tool;
 
 static Edi_Debug_Tool _debugger_tools[] = {
-    { "gdb", "gdb", NULL, "run\n", "c\n","set args %s", EINA_TRUE },
-    { "lldb", "lldb", NULL, "run\n", "c\n", "settings set target.run-args %s", EINA_TRUE },
-    { "pdb", "pdb", NULL, NULL, "c\n", "run %s", EINA_TRUE },
-    { "memcheck", "valgrind", "--tool=memcheck", NULL, NULL, NULL, EINA_FALSE },
-    { "massif", "valgrind", "--tool=massif", NULL, NULL, NULL, EINA_FALSE },
-    { "callgrind", "valgrind", "--tool=callgrind", NULL, NULL, NULL, EINA_FALSE },
-    { NULL, NULL, NULL, NULL, NULL, NULL, EINA_FALSE },
+    { "gdb", "gdb", NULL, "run\n", "c\n", "set args %s" },
+    { "lldb", "lldb", NULL, "run\n", "c\n", "settings set target.run-args %s" },
+    { "pdb", "pdb", NULL, NULL, "c\n", "run %s" },
+    { "memcheck", "valgrind", "--tool=memcheck", NULL, NULL, NULL },
+    { "massif", "valgrind", "--tool=massif", NULL, NULL, NULL },
+    { "callgrind", "valgrind", "--tool=callgrind", NULL, NULL, NULL },
+    { NULL, NULL, NULL, NULL, NULL, NULL },
 };
 
 static Edi_Debug_Tool *_debugger = NULL;
@@ -81,7 +80,6 @@ _edi_debugpanel_line_cb(void *data EINA_UNUSED, const Efl_Event *event)
    Elm_Code_Line *line;
 
    line = (Elm_Code_Line *)event->info;
-
    if (line->data)
      line->status = ELM_CODE_STATUS_TYPE_ERROR;
 }
@@ -402,7 +400,10 @@ _edi_debugpanel_button_quit_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNU
 static void
 _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
-   edi_debugpanel_start(_debugger->name);
+   const char *cmd = _edi_project_config_debug_command_get();
+   if (!cmd) return;
+
+   edi_debugpanel_start(cmd);
 }
 
 static Eina_Bool
@@ -454,13 +455,13 @@ _edi_debugger_run(Edi_Debug_Tool *tool)
    int len;
 
    _debug_exe = ecore_exe_pipe_run(_debugger_cmd, ECORE_EXE_PIPE_WRITE |
-                                   ECORE_EXE_PIPE_ERROR |
-                                   ECORE_EXE_PIPE_READ, NULL);
+                                                  ECORE_EXE_PIPE_ERROR |
+                                                  ECORE_EXE_PIPE_READ, NULL);
 
    ecore_event_handler_add(ECORE_EXE_EVENT_DATA, _debugpanel_stdout_handler, NULL);
    ecore_event_handler_add(ECORE_EXE_EVENT_ERROR, _debugpanel_stdout_handler, NULL);
 
-   if (tool->is_debugger && _edi_project_config->launch.args)
+   if (tool->command_arguments && _edi_project_config->launch.args)
      {
         fmt = _debugger->command_arguments;
         len = strlen(fmt) + strlen(_edi_project_config->launch.args) + 1;
@@ -472,7 +473,6 @@ _edi_debugger_run(Edi_Debug_Tool *tool)
 
    if (_debugger->command_start)
      ecore_exe_send(_debug_exe, _debugger->command_start, strlen(_debugger->command_start));
-
 }
 
 void edi_debugpanel_start(const char *toolname)
@@ -498,7 +498,7 @@ void edi_debugpanel_start(const char *toolname)
    tool = _edi_debug_tool_get(toolname);
    if (!tool || !ecore_file_app_installed(tool->exec))
      {
-        warning = _("Warning: debug tool is not installed.");
+        warning = _("Warning: debug tool is not installed (check settings and system configuration).");
         elm_code_file_line_append(_debug_output->file, warning, strlen(warning), NULL);
         return;
      }

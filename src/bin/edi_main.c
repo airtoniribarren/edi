@@ -730,6 +730,25 @@ _edi_build_display_status_cb(int status, void *data)
 }
 
 static void
+_edi_debug_project(void)
+{
+   const char *title, *message;
+   const char *command;
+
+   command = _edi_project_config_debug_command_get();
+   if (!command)
+     {
+        title = _("Unable to continue");
+        message = _("No debugging binary set, please configure in Settings.");
+
+        edi_screens_message(_edi_main_win, title, message);
+        return;
+     }
+
+   edi_debugpanel_start(command);
+}
+
+static void
 _edi_build_project(void)
 {
    if (!edi_build_provider_for_project_get())
@@ -796,7 +815,7 @@ static void
 _tb_debug_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    edi_debugpanel_show();
-   edi_debugpanel_start("gdb");
+   _edi_debug_project();
 }
 
 static void
@@ -1025,7 +1044,7 @@ _edi_menu_debug_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                      void *event_info EINA_UNUSED)
 {
    edi_debugpanel_show();
-   edi_debugpanel_start("gdb");
+   _edi_debug_project();
 }
 
 static void
