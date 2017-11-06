@@ -18,7 +18,6 @@
 
 #include "edi_debug.h"
 #include "edi_config.h"
-
 #include "edi_private.h"
 
 Edi_Debug_Tool _debugger_tools[] = {
