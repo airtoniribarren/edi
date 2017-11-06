@@ -286,7 +286,6 @@ void edi_debugpanel_start(const char *toolname)
      }
 
    _debugger = tool = edi_debug_tool_get(toolname);
-
    if (!tool || !ecore_file_app_installed(tool->exec))
      {
         warning = _("Warning: debug tool is not installed (check settings and system configuration).");
