@@ -1036,6 +1036,7 @@ _edi_menu_memcheck_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                      void *event_info EINA_UNUSED)
 {
    edi_debugpanel_show();
+   edi_debugpanel_stop();
    edi_debugpanel_start("memcheck");
 }
 
