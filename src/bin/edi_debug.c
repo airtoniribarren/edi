@@ -155,7 +155,7 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *st
    FILE *f;
    int count, parent_pid, pid;
 
-   if (!_edi_project_config->launch.path)
+   if (!program_name)
      return -1;
 
    if (!debug_exe) return -1;
