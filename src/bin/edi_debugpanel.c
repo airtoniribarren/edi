@@ -238,12 +238,10 @@ _edi_debugger_run(Edi_Debug_Tool *tool)
    char *args;
    int len;
 
-   _debug_exe = ecore_exe_pipe_run(_debugger_cmd, ECORE_EXE_PIPE_WRITE |
-                                                  ECORE_EXE_PIPE_ERROR |
-                                                  ECORE_EXE_PIPE_READ, NULL);
-
-   ecore_event_handler_add(ECORE_EXE_EVENT_DATA, _debugpanel_stdout_handler, NULL);
-   ecore_event_handler_add(ECORE_EXE_EVENT_ERROR, _debugpanel_stdout_handler, NULL);
+  _debug_exe = ecore_exe_pipe_run(_debugger_cmd,
+                                  ECORE_EXE_PIPE_WRITE |
+                                  ECORE_EXE_PIPE_ERROR |
+                                  ECORE_EXE_PIPE_READ, NULL);
 
    if (tool->command_arguments && _edi_project_config->launch.args)
      {
@@ -286,7 +284,7 @@ void edi_debugpanel_start(const char *toolname)
      }
 
    _debugger = tool = edi_debug_tool_get(toolname);
-   if (!tool || !ecore_file_app_installed(tool->exec))
+   if (!tool)
      {
         warning = _("Warning: debug tool is not installed (check settings and system configuration).");
         elm_code_file_line_append(_debug_output->file, warning, strlen(warning), NULL);
@@ -408,5 +406,7 @@ void edi_debugpanel_add(Evas_Object *parent)
    elm_box_pack_end(parent, widget);
    elm_box_pack_end(parent, table);
 
+   ecore_event_handler_add(ECORE_EXE_EVENT_DATA, _debugpanel_stdout_handler, NULL);
+   ecore_event_handler_add(ECORE_EXE_EVENT_ERROR, _debugpanel_stdout_handler, NULL);
    ecore_event_handler_add(EDI_EVENT_CONFIG_CHANGED, _edi_debugpanel_config_changed, NULL);
 }
