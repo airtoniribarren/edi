@@ -16,7 +16,6 @@
 #include <Eina.h>
 #include <Elementary.h>
 
-#include "edi_debugpanel.h"
 #include "edi_debug.h"
 #include "edi_config.h"
 
