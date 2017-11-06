@@ -412,7 +412,11 @@ _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UN
    else
      {
         name = _edi_project_config_debug_command_get();
-        if (!name) return;
+        if (!name)
+          {
+             edi_launcher_debug_config_missing();
+             return;
+          }
      }
 
    edi_debugpanel_start(name);
