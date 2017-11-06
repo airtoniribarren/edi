@@ -8,6 +8,7 @@
 #include "Edi.h"
 #include "edi_screens.h"
 #include "edi_config.h"
+#include "edi_debug.h"
 
 #include "edi_private.h"
 
@@ -293,23 +294,41 @@ _edi_settings_builds_args_cb(void *data EINA_UNUSED, Evas_Object *obj,
    _edi_project_config_save();
 }
 
-static void
-_edi_settings_builds_debug_command_cb(void *data EINA_UNUSED, Evas_Object *obj,
-                             void *event EINA_UNUSED)
+static char *
+_edi_settings_builds_debug_tool_text_get_cb(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
 {
-   Evas_Object *entry = obj;
+   Edi_Debug_Tool *tool;
+   int i;
+
+   i = (int)(uintptr_t) data;
+
+   tool = &edi_debug_available_tools_get()[i];
+
+   return strdup(tool->name);
+}
+
+static void _edi_settings_builds_debug_pressed_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
+{
+   const char *text = elm_object_item_text_get(event_info);
 
    if (_edi_project_config->debug_command)
      eina_stringshare_del(_edi_project_config->debug_command);
 
-   _edi_project_config->debug_command = eina_stringshare_add(elm_object_text_get(entry));
+   _edi_project_config->debug_command = eina_stringshare_add(text);
    _edi_project_config_save();
+
+   elm_object_text_set(obj, text);
+   elm_combobox_hover_end(obj);
 }
 
 static Evas_Object *
 _edi_settings_builds_create(Evas_Object *parent)
 {
    Evas_Object *box, *frame, *table, *label, *ic, *selector, *file, *entry;
+   Evas_Object *combobox;
+   Elm_Genlist_Item_Class *itc;
+   Edi_Debug_Tool *tools;
+   int i;
 
    frame = _edi_settings_panel_create(parent, _("Builds"));
    box = elm_object_part_content_get(frame, "default");
@@ -382,17 +401,30 @@ _edi_settings_builds_create(Evas_Object *parent)
    elm_table_pack(table, label, 0, 2, 1, 1);
    evas_object_show(label);
 
-   entry = elm_entry_add(box);
-   elm_object_text_set(entry, _edi_project_config->debug_command);
-   elm_entry_editable_set(entry, EINA_TRUE);
-   elm_entry_single_line_set(entry, EINA_TRUE);
-   elm_entry_scrollable_set(entry, EINA_TRUE);
-   evas_object_size_hint_weight_set(entry, 0.75, 0.0);
-   evas_object_size_hint_align_set(entry, EVAS_HINT_FILL, EVAS_HINT_FILL);
-   evas_object_smart_callback_add(entry, "changed",
-                                  _edi_settings_builds_debug_command_cb, NULL);
-   evas_object_show(entry);
-   elm_table_pack(table, entry, 1, 2, 2, 1);
+   combobox = elm_combobox_add(box);
+   if (_edi_project_config->debug_command)
+     elm_object_part_text_set(combobox, "guide", _edi_project_config->debug_command);
+   else
+     elm_object_part_text_set(combobox, "guide", _("Please choose ..."));
+
+   evas_object_size_hint_weight_set(combobox, 0.75, 0.0);
+   evas_object_size_hint_align_set(combobox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(combobox);
+   evas_object_smart_callback_add(combobox, "item,pressed",
+                                 _edi_settings_builds_debug_pressed_cb, NULL);
+
+   elm_table_pack(table, combobox, 1, 2, 2, 1);
+
+   itc = elm_genlist_item_class_new();
+   itc->item_style = "default";
+   itc->func.text_get = _edi_settings_builds_debug_tool_text_get_cb;
+
+   tools = edi_debug_available_tools_get();
+   for (i = 0; tools[i].name; i++)
+     elm_genlist_item_append(combobox, itc, (void *)(uintptr_t) i, NULL, ELM_GENLIST_ITEM_NONE, NULL, (void *)(uintptr_t) i);
+
+   elm_genlist_realized_items_update(combobox);
+   elm_genlist_item_class_free(itc);
 
    return frame;
 }
