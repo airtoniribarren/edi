@@ -360,8 +360,6 @@ _edi_settings_builds_create(Evas_Object *parent)
    elm_table_pack(table, selector, 1, 0, 1, 1);
    evas_object_show(selector);
 
-   elm_object_focus_set(selector, EINA_TRUE);
-
    file = elm_entry_add(box);
    elm_entry_editable_set(file, EINA_FALSE);
    elm_entry_single_line_set(file, EINA_TRUE);
@@ -395,7 +393,7 @@ _edi_settings_builds_create(Evas_Object *parent)
                                   _edi_settings_builds_args_cb, NULL);
 
    label = elm_label_add(box);
-   elm_object_text_set(label, _("Debug command:"));
+   elm_object_text_set(label, _("Debug tool:"));
    evas_object_size_hint_weight_set(label, 0.0, 0.0);
    evas_object_size_hint_align_set(label, 0.0, EVAS_HINT_FILL);
    elm_table_pack(table, label, 0, 2, 1, 1);
@@ -421,7 +419,10 @@ _edi_settings_builds_create(Evas_Object *parent)
 
    tools = edi_debug_available_tools_get();
    for (i = 0; tools[i].name; i++)
-     elm_genlist_item_append(combobox, itc, (void *)(uintptr_t) i, NULL, ELM_GENLIST_ITEM_NONE, NULL, (void *)(uintptr_t) i);
+     {
+        if (ecore_file_app_installed(tools[i].exec))
+          elm_genlist_item_append(combobox, itc, (void *)(uintptr_t) i, NULL, ELM_GENLIST_ITEM_NONE, NULL, (void *)(uintptr_t) i);
+     }
 
    elm_genlist_realized_items_update(combobox);
    elm_genlist_item_class_free(itc);

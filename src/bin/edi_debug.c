@@ -29,7 +29,6 @@ Edi_Debug_Tool _debugger_tools[] = {
     { "memcheck", "valgrind", "--tool=memcheck", NULL, NULL, NULL, EINA_FALSE },
     { "massif", "valgrind", "--tool=massif", NULL, NULL, NULL, EINA_FALSE },
     { "callgrind", "valgrind", "--tool=callgrind", NULL, NULL, NULL, EINA_FALSE },
-    { "xterm", "xterm", NULL, NULL, NULL, NULL,  EINA_TRUE },
     { NULL, NULL, NULL, NULL, NULL, NULL, EINA_FALSE },
 };
 
@@ -52,10 +51,8 @@ Edi_Debug_Tool *edi_debug_tool_get(const char *name)
            }
       }
 
-    _debugger = &_debugger_tools[i];
-    _debugger->exec = name;
 
-    return _debugger;
+    return NULL;
 }
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
