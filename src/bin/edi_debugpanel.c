@@ -182,16 +182,10 @@ _edi_debugpanel_button_quit_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNU
 static void
 _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
-   const char *name;
-
-   name = _edi_project_config_debug_command_get();
-   if (!name)
-     {
-        edi_launcher_debug_config_missing();
-        return;
-     }
-
-   edi_debugpanel_start(name);
+   if (_debugger)
+     edi_debugpanel_start(_debugger->name);
+   else
+     edi_debugpanel_start(_edi_project_config_debug_command_get());
 }
 
 static Eina_Bool
@@ -265,15 +259,10 @@ void edi_debugpanel_start(const char *toolname)
 {
    Edi_Debug_Tool *tool;
    const char *warning, *mime;
+
    if (!_edi_project_config->launch.path)
      {
         edi_launcher_config_missing();
-        return;
-     }
-
-   if (!toolname || !toolname[0])
-     {
-        edi_launcher_debug_config_missing();
         return;
      }
 
@@ -287,12 +276,6 @@ void edi_debugpanel_start(const char *toolname)
      }
 
    _debugger = tool = edi_debug_tool_get(toolname);
-   if (!tool)
-     {
-        warning = _("Warning: debug tool is not installed (check settings and system configuration).");
-        elm_code_file_line_append(_debug_output->file, warning, strlen(warning), NULL);
-        return;
-     }
 
    if (tool->external)
      {

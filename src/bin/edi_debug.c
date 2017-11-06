@@ -38,18 +38,17 @@ Edi_Debug_Tool *edi_debug_tools_get(void)
 Edi_Debug_Tool *edi_debug_tool_get(const char *name)
 {
    int i;
-   Edi_Debug_Tool *_debugger;
+
+   if (!name)
+      return &_debugger_tools[0];
 
    for (i = 0; _debugger_tools[i].name; i++)
       {
          if (!strcmp(_debugger_tools[i].name, name))
-           {
-              _debugger = &_debugger_tools[i];
-              return _debugger;
-           }
+           return &_debugger_tools[i];
       }
 
-    return NULL;
+    return &_debugger_tools[0];
 }
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
