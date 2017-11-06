@@ -53,6 +53,9 @@ _debugpanel_stdout_handler(void *data EINA_UNUSED, int type EINA_UNUSED, void *e
    char *start, *end = NULL;
    ev = event;
 
+   if (ev->exe != _debug_exe)
+     return ECORE_CALLBACK_RENEW;
+
    if (ev && ev->size)
       {
          if (!ev->data) return ECORE_CALLBACK_DONE;
