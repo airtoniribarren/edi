@@ -64,7 +64,7 @@ Edi_Debug_Tool *edi_debug_tool_get(const char *name);
  *
  * @ingroup Debug
  */
-Edi_Debug_Tool *edi_debug_available_tools_get(void);
+Edi_Debug_Tool *edi_debug_tools_get(void);
 
 /**
  * @}

@@ -32,7 +32,7 @@ Edi_Debug_Tool _debugger_tools[] = {
     { NULL, NULL, NULL, NULL, NULL, NULL, EINA_FALSE },
 };
 
-Edi_Debug_Tool *edi_debug_available_tools_get(void)
+Edi_Debug_Tool *edi_debug_tools_get(void)
 {
    return _debugger_tools;
 }
@@ -50,7 +50,6 @@ Edi_Debug_Tool *edi_debug_tool_get(const char *name)
               return _debugger;
            }
       }
-
 
     return NULL;
 }

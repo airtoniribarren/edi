@@ -302,7 +302,7 @@ _edi_settings_builds_debug_tool_text_get_cb(void *data, Evas_Object *obj EINA_UN
 
    i = (int)(uintptr_t) data;
 
-   tool = &edi_debug_available_tools_get()[i];
+   tool = &edi_debug_tools_get()[i];
 
    return strdup(tool->name);
 }
@@ -417,7 +417,7 @@ _edi_settings_builds_create(Evas_Object *parent)
    itc->item_style = "default";
    itc->func.text_get = _edi_settings_builds_debug_tool_text_get_cb;
 
-   tools = edi_debug_available_tools_get();
+   tools = edi_debug_tools_get();
    for (i = 0; tools[i].name; i++)
      {
         if (ecore_file_app_installed(tools[i].exec))
