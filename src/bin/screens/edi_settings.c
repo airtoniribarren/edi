@@ -393,7 +393,7 @@ _edi_settings_builds_create(Evas_Object *parent)
                                   _edi_settings_builds_args_cb, NULL);
 
    label = elm_label_add(box);
-   elm_object_text_set(label, _("Debug tool:"));
+   elm_object_text_set(label, _("Default debugger:"));
    evas_object_size_hint_weight_set(label, 0.0, 0.0);
    evas_object_size_hint_align_set(label, 0.0, EVAS_HINT_FILL);
    elm_table_pack(table, label, 0, 2, 1, 1);
