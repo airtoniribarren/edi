@@ -71,7 +71,10 @@ _edi_debug_tool_get(const char *name)
            }
       }
 
-    return NULL;
+    _debugger = &_debugger_tools[i];
+    _debugger->exec = name;
+
+    return _debugger;
 }
 
 static void
@@ -496,7 +499,8 @@ void edi_debugpanel_start(const char *toolname)
      }
 
    tool = _edi_debug_tool_get(toolname);
-   if (!tool || !ecore_file_app_installed(tool->exec))
+
+   if (!ecore_file_app_installed(tool->exec))
      {
         warning = _("Warning: debug tool is not installed (check settings and system configuration).");
         elm_code_file_line_append(_debug_output->file, warning, strlen(warning), NULL);
