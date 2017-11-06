@@ -498,6 +498,12 @@ void edi_debugpanel_start(const char *toolname)
         return;
      }
 
+   if (!toolname || !toolname[0])
+     {
+        edi_launcher_debug_config_missing();
+        return;
+     }
+
    if (_debug_exe) return;
 
    if (!ecore_file_exists(_edi_project_config->launch.path))

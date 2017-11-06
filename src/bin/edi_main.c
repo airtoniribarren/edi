@@ -553,6 +553,17 @@ _edi_icon_update()
 }
 
 void
+edi_launcher_debug_config_missing(void)
+{
+   const char *title, *message;
+
+   title = _("Unable to launch");
+   message = _("No debug binary found, please configure in Settings.");
+
+   edi_screens_message(_edi_main_win, title, message);
+}
+
+void
 edi_launcher_config_missing()
 {
    const char *title, *message;
@@ -732,16 +743,12 @@ _edi_build_display_status_cb(int status, void *data)
 static void
 _edi_debug_project(void)
 {
-   const char *title, *message;
    const char *command;
 
    command = _edi_project_config_debug_command_get();
    if (!command)
      {
-        title = _("Unable to continue");
-        message = _("No debugging binary set, please configure in Settings.");
-
-        edi_screens_message(_edi_main_win, title, message);
+        edi_launcher_debug_config_missing();
         return;
      }
 
