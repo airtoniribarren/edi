@@ -26,6 +26,7 @@ static Elm_Code *_debug_output;
 Edi_Debug_Tool *_debugger = NULL;
 
 static char _debugger_cmd[1024];
+static const char *_program_name = NULL;
 
 static void
 _edi_debugpanel_line_cb(void *data EINA_UNUSED, const Efl_Event *event)
@@ -130,7 +131,7 @@ _edi_debugpanel_bt_sigterm_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUS
    pid_t pid;
    Evas_Object *ico_int;
 
-   pid = edi_debug_process_id(_debug_exe, NULL);
+   pid = edi_debug_process_id(_debug_exe, _program_name, NULL);
    if (pid <= 0) return;
 
    ico_int = elm_icon_add(_button_int);
@@ -161,7 +162,7 @@ _edi_debugpanel_bt_sigint_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSE
    pid_t pid;
    int state;
 
-   pid = edi_debug_process_id(_debug_exe, &state);
+   pid = edi_debug_process_id(_debug_exe, _program_name, &state);
    if (pid <= 0) return;
 
    if (state == DEBUG_PROCESS_ACTIVE)
@@ -209,7 +210,7 @@ _edi_debug_active_check_cb(void *data EINA_UNUSED)
      }
    else
      {
-        if (edi_debug_process_id(_debug_exe, &state) > 0)
+        if (edi_debug_process_id(_debug_exe, _program_name, &state) > 0)
           _edi_debugpanel_icons_update(state);
      }
 
@@ -264,7 +265,6 @@ void edi_debugpanel_start(const char *toolname)
 {
    Edi_Debug_Tool *tool;
    const char *warning, *mime;
-
    if (!_edi_project_config->launch.path)
      {
         edi_launcher_config_missing();
@@ -304,6 +304,8 @@ void edi_debugpanel_start(const char *toolname)
         ecore_exe_run(_debugger_cmd, NULL);
         return;
      }
+
+   _program_name = ecore_file_file_get(_edi_project_config->launch.path);
 
    mime = efreet_mime_type_get(_edi_project_config->launch.path);
    if (!strcmp(mime, "application/x-shellscript"))

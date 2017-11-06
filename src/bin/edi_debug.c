@@ -67,9 +67,8 @@ _sysctlfromname(const char *name, void *mib, int depth, size_t *len)
 #endif
 
 /* Get the process ID of the child process being debugged in *our* session */
-int edi_debug_process_id(Ecore_Exe *debug_exe, int *state)
+int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *state)
 {
-   const char *program_name;
    int my_pid, child_pid = -1;
 #if defined(__FreeBSD__) || defined(__DragonFly__) || defined (__APPLE__) || defined(__OpenBSD__)
    struct kinfo_proc kp;
@@ -99,7 +98,6 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, int *state)
    mib[4] = sizeof(struct kinfo_proc);
    mib[5] = 1;
 #endif
-   program_name = ecore_file_file_get(_edi_project_config->launch.path);
 
    for (i = my_pid; i <= max_pid; i++)
      {
@@ -163,8 +161,6 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, int *state)
    if (!debug_exe) return -1;
 
    my_pid = ecore_exe_pid_get(debug_exe);
-
-   program_name = ecore_file_file_get(_edi_project_config->launch.path);
 
    files = ecore_file_ls("/proc");
 
