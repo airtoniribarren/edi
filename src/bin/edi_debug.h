@@ -58,7 +58,7 @@ int edi_debug_process_id(int *state);
 Edi_Debug_Tool *edi_debug_tool_get(const char *name);
 
 /**
- * Return a pointer to the list of available debugging tools
+ * Return a pointer to the list of available debugging tools.
  *
  * @return Pointer to debugging information for all available tools.
  *
@@ -69,7 +69,6 @@ Edi_Debug_Tool *edi_debug_available_tools_get(void);
 /**
  * @}
  */
-
 
 
 #ifdef __cplusplus
