@@ -76,7 +76,7 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *st
    size_t len;
    int max_pid, i;
 
-   if (!_edi_project_config->launch.path) return -1;
+   if (!program_name) return -1;
    if (!debug_exe) return -1;
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
