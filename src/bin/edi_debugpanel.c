@@ -403,10 +403,19 @@ _edi_debugpanel_button_quit_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNU
 static void
 _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
-   const char *cmd = _edi_project_config_debug_command_get();
-   if (!cmd) return;
+   const char *name;
 
-   edi_debugpanel_start(cmd);
+   if (_debugger)
+     {
+        name = _debugger->name;
+     }
+   else
+     {
+        name = _edi_project_config_debug_command_get();
+        if (!name) return;
+     }
+
+   edi_debugpanel_start(name);
 }
 
 static Eina_Bool
@@ -466,7 +475,7 @@ _edi_debugger_run(Edi_Debug_Tool *tool)
 
    if (tool->command_arguments && _edi_project_config->launch.args)
      {
-        fmt = _debugger->command_arguments;
+        fmt = tool->command_arguments;
         len = strlen(fmt) + strlen(_edi_project_config->launch.args) + 1;
         args = malloc(len);
         snprintf(args, len, fmt, _edi_project_config->launch.args);
@@ -474,8 +483,8 @@ _edi_debugger_run(Edi_Debug_Tool *tool)
         free(args);
      }
 
-   if (_debugger->command_start)
-     ecore_exe_send(_debug_exe, _debugger->command_start, strlen(_debugger->command_start));
+   if (tool->command_start)
+     ecore_exe_send(_debug_exe, tool->command_start, strlen(tool->command_start));
 }
 
 void edi_debugpanel_start(const char *toolname)

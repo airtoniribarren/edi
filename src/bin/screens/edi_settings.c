@@ -337,14 +337,16 @@ _edi_settings_builds_create(Evas_Object *parent)
    elm_object_text_set(selector, _("Select"));
    elm_object_part_content_set(selector, "icon", ic);
    elm_fileselector_path_set(selector, edi_project_get());
-   evas_object_size_hint_weight_set(selector, 0.25, 0.0);
    evas_object_size_hint_align_set(selector, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_table_pack(table, selector, 1, 0, 1, 1);
    evas_object_show(selector);
 
    elm_object_focus_set(selector, EINA_TRUE);
 
-   file = elm_label_add(box);
+   file = elm_entry_add(box);
+   elm_entry_editable_set(file, EINA_FALSE);
+   elm_entry_single_line_set(file, EINA_TRUE);
+   elm_entry_scrollable_set(file, EINA_TRUE);
    elm_object_text_set(file, _edi_project_config->launch.path);
    evas_object_size_hint_weight_set(file, 0.75, 0.0);
    evas_object_size_hint_align_set(file, EVAS_HINT_FILL, EVAS_HINT_FILL);
