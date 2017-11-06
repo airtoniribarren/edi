@@ -69,9 +69,8 @@ _sysctlfromname(const char *name, void *mib, int depth, size_t *len)
 #endif
 
 /* Get the process ID of the child process being debugged in *our* session */
-int edi_debug_process_id(int *state)
+int edi_debug_process_id(Ecore_Exe *debug_exe, int *state)
 {
-   Ecore_Exe *debug_exe = edi_debugpanel_exe();
    const char *program_name;
    int my_pid, child_pid = -1;
 #if defined(__FreeBSD__) || defined(__DragonFly__) || defined (__APPLE__) || defined(__OpenBSD__)

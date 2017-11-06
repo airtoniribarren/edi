@@ -48,15 +48,6 @@ void edi_debugpanel_start(const char *toolname);
 void edi_debugpanel_stop();
 
 /**
- * Return Ecore_Exe * of debugging session.
- *
- * @return exe if debug session is active.
- *
- * @ingroup UI
- */
-Ecore_Exe *edi_debugpanel_exe(void);
-
-/**
  * @}
  */
 

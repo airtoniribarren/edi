@@ -38,13 +38,14 @@ typedef struct _Edi_Debug_Tool {
 /**
  * Obtain process information of debugged process.
  *
+ * @param exe Ecore_Exe debug instance.
  * @param state Value to obtain process state.
  *
- * @return process id of debugged process.
+ * @return process id of debugged process that is child of running debugger.
  *
  * @ingroup Debug
  */
-int edi_debug_process_id(int *state);
+int edi_debug_process_id(Ecore_Exe *exe, int *state);
 
 /**
  * Obtain debugging info for given program name.
