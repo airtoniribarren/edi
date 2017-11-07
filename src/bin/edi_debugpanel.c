@@ -182,10 +182,7 @@ _edi_debugpanel_button_quit_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNU
 static void
 _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
-   if (_debugger)
-     edi_debugpanel_start(_debugger->name);
-   else
-     edi_debugpanel_start(_edi_project_config_debug_command_get());
+   edi_debugpanel_start(_edi_project_config_debug_command_get());
 }
 
 static Eina_Bool
@@ -276,6 +273,11 @@ void edi_debugpanel_start(const char *toolname)
      }
 
    _debugger = tool = edi_debug_tool_get(toolname);
+   if (!tool)
+     {
+        edi_debug_exe_missing();
+        return;
+     }
 
    if (tool->external)
      {

@@ -563,6 +563,17 @@ edi_launcher_config_missing()
    edi_screens_message(_edi_main_win, title, message);
 }
 
+void
+edi_debug_exe_missing(void)
+{
+   const char *title, *message;
+
+   title = _("Unable to launch debugger");
+   message = _("No debug binary found, please check system configuration and Settings.");
+
+   edi_screens_message(_edi_main_win, title, message);
+}
+
 static void
 _edi_project_credentials_missing()
 
