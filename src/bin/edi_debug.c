@@ -41,12 +41,13 @@ Edi_Debug_Tool *edi_debug_tool_get(const char *name)
 
    for (i = 0; _debugger_tools[i].name && name; i++)
       {
-         if (!strcmp(_debugger_tools[i].name, name))
+         if (!strcmp(_debugger_tools[i].name, name) &&
+             ecore_file_app_installed(_debugger_tools[i].exec))
            return &_debugger_tools[i];
       }
 
     // Fallback, but not installed.
-    if (!ecore_file_app_installed(_debugger_tools[0].exec))
+    if (name || !ecore_file_app_installed(_debugger_tools[0].exec))
       return NULL;
 
     // Fallback to first.
