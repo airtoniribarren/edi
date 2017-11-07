@@ -256,20 +256,13 @@ _edi_debugger_run(Edi_Debug_Tool *tool)
 void edi_debugpanel_start(const char *toolname)
 {
    Edi_Debug_Tool *tool;
-   const char *warning, *mime;
+   const char *mime;
+
+   if (_debug_exe) return;
 
    if (!_edi_project_config->launch.path)
      {
         edi_launcher_config_missing();
-        return;
-     }
-
-   if (_debug_exe) return;
-
-   if (!ecore_file_exists(_edi_project_config->launch.path))
-     {
-        warning = _("Warning: executable does not exists (run make?)");
-        elm_code_file_line_append(_debug_output->file, warning, strlen(warning), NULL);
         return;
      }
 
@@ -283,7 +276,7 @@ void edi_debugpanel_start(const char *toolname)
    _program_name = ecore_file_file_get(_edi_project_config->launch.path);
 
    mime = efreet_mime_type_get(_edi_project_config->launch.path);
-   if (!strcmp(mime, "application/x-shellscript"))
+   if (mime && !strcmp(mime, "application/x-shellscript"))
      snprintf(_debugger_cmd, sizeof(_debugger_cmd), LIBTOOL_COMMAND " --mode execute %s %s", tool->exec, _edi_project_config->launch.path);
    else if (tool->arguments)
      snprintf(_debugger_cmd, sizeof(_debugger_cmd), "%s %s %s", tool->exec, tool->arguments, _edi_project_config->launch.path);
