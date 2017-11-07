@@ -26,6 +26,14 @@ typedef struct _Edi_Debug_Tool {
    const char *command_arguments;
 } Edi_Debug_Tool;
 
+typedef struct _Edi_Debug {
+   Edi_Debug_Tool *tool;
+   const char *program_name;
+   Ecore_Exe *exe;
+   char cmd[1024];
+   Edi_Debug_Process_State state;
+} Edi_Debug;
+
 /**
  * @brief Debug management functions.
  * @defgroup Debug
@@ -39,15 +47,13 @@ typedef struct _Edi_Debug_Tool {
 /**
  * Obtain process information of debugged process.
  *
- * @param exe Ecore_Exe debug process instance.
- * @param name The name of the child process being debugged.
- * @param state The execution state of the child process.
+ * @param debugger Edi_Debug instance.
  *
  * @return process id of debugged process that is child of running debugger.
  *
  * @ingroup Debug
  */
-int edi_debug_process_id(Ecore_Exe *exe, const char *name, Edi_Debug_Process_State *state);
+int edi_debug_process_id(Edi_Debug *debugger);
 
 /**
  * Obtain debugging info for given program name.

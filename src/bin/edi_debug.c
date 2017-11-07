@@ -69,7 +69,7 @@ _sysctlfromname(const char *name, void *mib, int depth, size_t *len)
 #endif
 
 /* Get the process ID of the child process being debugged in *our* session */
-int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Debug_Process_State *state)
+int edi_debug_process_id(Edi_Debug *debugger)
 {
    int my_pid, child_pid = -1;
 #if defined(__FreeBSD__) || defined(__DragonFly__) || defined (__APPLE__) || defined(__OpenBSD__)
@@ -78,8 +78,8 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Deb
    size_t len;
    int max_pid, i;
 
-   if (!program_name) return -1;
-   if (!debug_exe) return -1;
+   if (!debugger->program_name) return -1;
+   if (!debugger->exe) return -1;
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
    len = sizeof(max_pid);
@@ -89,7 +89,7 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Deb
 #else
    max_pid = 99999;
 #endif
-   my_pid = ecore_exe_pid_get(debug_exe);
+   my_pid = ecore_exe_pid_get(debugger->exe);
 
 #if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__APPLE__)
    if (sysctlnametomib("kern.proc.pid", mib, &len) < 0) return -1;
@@ -113,38 +113,29 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Deb
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
         if (kp.ki_ppid != my_pid) continue;
-        if (strcmp(program_name, kp.ki_comm)) continue;
+        if (strcmp(debugger->program_name, kp.ki_comm)) continue;
         child_pid = kp.ki_pid;
-        if (state)
-          {
-             if (kp.ki_stat == SRUN || kp.ki_stat == SSLEEP)
-               *state = EDI_DEBUG_PROCESS_ACTIVE;
-             else
-               *state = EDI_DEBUG_PROCESS_SLEEPING;
-          }
+        if (kp.ki_stat == SRUN || kp.ki_stat == SSLEEP)
+          debugger->state = EDI_DEBUG_PROCESS_ACTIVE;
+        else
+          debugger->state = EDI_DEBUG_PROCESS_SLEEPING;
 #elif defined(__OpenBSD__)
         if (kp.p_ppid != my_pid) continue;
-        if (strcmp(program_name, kp.p_comm)) continue;
+        if (strcmp(debugger->program_name, kp.p_comm)) continue;
         child_pid = kp.p_pid;
 
-        if (state)
-          {
-             if (kp.p_stat == SRUN || kp.p_stat == SSLEEP)
-               *state = EDI_DEBUG_PROCESS_ACTIVE;
-             else
-               *state = EDI_DEBUG_PROCESS_SLEEPING;
-          }
+        if (kp.p_stat == SRUN || kp.p_stat == SSLEEP)
+          debugger->state = EDI_DEBUG_PROCESS_ACTIVE;
+        else
+          debugger->state = EDI_DEBUG_PROCESS_SLEEPING;
 #else /* APPLE */
         if (kp.kp_proc.p_oppid != my_pid) continue;
-        if (strcmp(program_name, kp.kp_proc.p_comm)) continue;
+        if (strcmp(debugger->program_name, kp.kp_proc.p_comm)) continue;
         child_pid = kp.kp_proc.p_pid;
-        if (state)
-          {
-             if (kp.kp_proc.p_stat == SRUN || kp.kp_proc.p_stat == SSLEEP)
-               *state = EDI_DEBUG_PROCESS_ACTIVE;
-             else
-               *state = EDI_DEBUG_PROCESS_SLEEPING;
-          }
+        if (kp.kp_proc.p_stat == SRUN || kp.kp_proc.p_stat == SSLEEP)
+          debugger->state = EDI_DEBUG_PROCESS_ACTIVE;
+        else
+          debugger->state = EDI_DEBUG_PROCESS_SLEEPING;
 #endif
         break;
      }
@@ -157,12 +148,12 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Deb
    FILE *f;
    int count, parent_pid, pid;
 
-   if (!program_name)
+   if (!debugger->program_name)
      return -1;
 
-   if (!debug_exe) return -1;
+   if (!debugger->exe) return -1;
 
-   my_pid = ecore_exe_pid_get(debug_exe);
+   my_pid = ecore_exe_pid_get(debugger->exe);
 
    files = ecore_file_ls("/proc");
 
@@ -177,7 +168,7 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Deb
         fclose(f);
         if (!p) continue;
         temp_name = ecore_file_file_get(buf);
-        if (!strcmp(temp_name, program_name))
+        if (!strcmp(temp_name, debugger->program_name))
           {
              parent_pid = 0;
              // Match success - program name with pid.
@@ -193,13 +184,10 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Deb
                        if (p[0] == ' ') { count++; p++; }
                        if (count == 2)
                          {
-                            if (state)
-                              {
-                                 if (p[0] == 'S' || p[0] == 'R')
-                                   *state = EDI_DEBUG_PROCESS_ACTIVE;
-                                 else
-                                   *state = EDI_DEBUG_PROCESS_SLEEPING;
-                              }
+                            if (p[0] == 'S' || p[0] == 'R')
+                              debugger->state = EDI_DEBUG_PROCESS_ACTIVE;
+                            else
+                              debugger->state = EDI_DEBUG_PROCESS_SLEEPING;
                          }
                        if (count == 3) break;
                     }

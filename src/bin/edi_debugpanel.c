@@ -22,13 +22,6 @@ static Evas_Object *_info_widget, *_entry_widget, *_button_start, *_button_quit;
 static Evas_Object *_button_int, *_button_term;
 static Elm_Code *_debug_output;
 
-typedef struct _Edi_Debug {
-   Edi_Debug_Tool *tool;
-   const char *program_name;
-   Ecore_Exe *exe;
-   char cmd[1024];
-} Edi_Debug;
-
 static Edi_Debug *_debugger = NULL;
 
 static void
@@ -134,7 +127,7 @@ _edi_debugpanel_bt_sigterm_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUS
    pid_t pid;
    Evas_Object *ico_int;
 
-   pid = edi_debug_process_id(_debugger->exe, _debugger->program_name, NULL);
+   pid = edi_debug_process_id(_debugger);
    if (pid <= 0) return;
 
    ico_int = elm_icon_add(_button_int);
@@ -163,17 +156,16 @@ static void
 _edi_debugpanel_bt_sigint_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
    pid_t pid;
-   Edi_Debug_Process_State state;
 
-   pid = edi_debug_process_id(_debugger->exe, _debugger->program_name, &state);
+   pid = edi_debug_process_id(_debugger);
    if (pid <= 0) return;
 
-   if (state == EDI_DEBUG_PROCESS_ACTIVE)
+   if (_debugger->state == EDI_DEBUG_PROCESS_ACTIVE)
      kill(pid, SIGINT);
    else if (_debugger->tool->command_continue)
      ecore_exe_send(_debugger->exe, _debugger->tool->command_continue, strlen(_debugger->tool->command_continue));
 
-    _edi_debugpanel_icons_update(state);
+    _edi_debugpanel_icons_update(_debugger->state);
 }
 
 static void
@@ -191,7 +183,6 @@ _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UN
 static Eina_Bool
 _edi_debug_active_check_cb(void *data EINA_UNUSED)
 {
-   Edi_Debug_Process_State state;
    int pid;
 
    pid = ecore_exe_pid_get(_debugger->exe);
@@ -206,8 +197,8 @@ _edi_debug_active_check_cb(void *data EINA_UNUSED)
      }
    else
      {
-        if (edi_debug_process_id(_debugger->exe, _debugger->program_name, &state) > 0)
-          _edi_debugpanel_icons_update(state);
+        if (edi_debug_process_id(_debugger) > 0)
+          _edi_debugpanel_icons_update(_debugger->state);
      }
 
    return ECORE_CALLBACK_RENEW;
