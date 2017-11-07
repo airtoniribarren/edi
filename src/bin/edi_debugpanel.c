@@ -142,13 +142,13 @@ _edi_debugpanel_bt_sigterm_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUS
 }
 
 static void
-_edi_debugpanel_icons_update(int state)
+_edi_debugpanel_icons_update(Edi_Debug_Process_State state)
 {
    Evas_Object *ico_int;
 
    ico_int = elm_icon_add(_button_int);
 
-   if (state == DEBUG_PROCESS_ACTIVE)
+   if (state == EDI_DEBUG_PROCESS_ACTIVE)
      elm_icon_standard_set(ico_int, "media-playback-pause");
    else
      elm_icon_standard_set(ico_int, "media-playback-start");
@@ -160,12 +160,12 @@ static void
 _edi_debugpanel_bt_sigint_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
    pid_t pid;
-   int state;
+   Edi_Debug_Process_State state;
 
    pid = edi_debug_process_id(_debug_exe, _program_name, &state);
    if (pid <= 0) return;
 
-   if (state == DEBUG_PROCESS_ACTIVE)
+   if (state == EDI_DEBUG_PROCESS_ACTIVE)
      kill(pid, SIGINT);
    else if (_debugger->command_continue)
      ecore_exe_send(_debug_exe, _debugger->command_continue, strlen(_debugger->command_continue));
@@ -188,7 +188,8 @@ _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UN
 static Eina_Bool
 _edi_debug_active_check_cb(void *data EINA_UNUSED)
 {
-   int state, pid = ecore_exe_pid_get(_debug_exe);
+   Edi_Debug_Process_State state;
+   int pid = ecore_exe_pid_get(_debug_exe);
 
    if (pid == -1)
      {

@@ -68,7 +68,7 @@ _sysctlfromname(const char *name, void *mib, int depth, size_t *len)
 #endif
 
 /* Get the process ID of the child process being debugged in *our* session */
-int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *state)
+int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, Edi_Debug_Process_State *state)
 {
    int my_pid, child_pid = -1;
 #if defined(__FreeBSD__) || defined(__DragonFly__) || defined (__APPLE__) || defined(__OpenBSD__)
@@ -117,9 +117,9 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *st
         if (state)
           {
              if (kp.ki_stat == SRUN || kp.ki_stat == SSLEEP)
-               *state = DEBUG_PROCESS_ACTIVE;
+               *state = EDI_DEBUG_PROCESS_ACTIVE;
              else
-               *state = DEBUG_PROCESS_SLEEPING;
+               *state = EDI_DEBUG_PROCESS_SLEEPING;
           }
 #elif defined(__OpenBSD__)
         if (kp.p_ppid != my_pid) continue;
@@ -129,9 +129,9 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *st
         if (state)
           {
              if (kp.p_stat == SRUN || kp.p_stat == SSLEEP)
-               *state = DEBUG_PROCESS_ACTIVE;
+               *state = EDI_DEBUG_PROCESS_ACTIVE;
              else
-               *state = DEBUG_PROCESS_SLEEPING;
+               *state = EDI_DEBUG_PROCESS_SLEEPING;
           }
 #else /* APPLE */
         if (kp.kp_proc.p_oppid != my_pid) continue;
@@ -140,9 +140,9 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *st
         if (state)
           {
              if (kp.kp_proc.p_stat == SRUN || kp.kp_proc.p_stat == SSLEEP)
-               *state = DEBUG_PROCESS_ACTIVE;
+               *state = EDI_DEBUG_PROCESS_ACTIVE;
              else
-               *state = DEBUG_PROCESS_SLEEPING;
+               *state = EDI_DEBUG_PROCESS_SLEEPING;
           }
 #endif
         break;
@@ -195,9 +195,9 @@ int edi_debug_process_id(Ecore_Exe *debug_exe, const char *program_name, int *st
                             if (state)
                               {
                                  if (p[0] == 'S' || p[0] == 'R')
-                                   *state = DEBUG_PROCESS_ACTIVE;
+                                   *state = EDI_DEBUG_PROCESS_ACTIVE;
                                  else
-                                   *state = DEBUG_PROCESS_SLEEPING;
+                                   *state = EDI_DEBUG_PROCESS_SLEEPING;
                               }
                          }
                        if (count == 3) break;

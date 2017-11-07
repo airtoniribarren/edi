@@ -12,8 +12,10 @@ extern "C" {
  * @brief These routines are used for managing debugging features.
  */
 
-#define DEBUG_PROCESS_SLEEPING 0
-#define DEBUG_PROCESS_ACTIVE 1
+typedef enum {
+   EDI_DEBUG_PROCESS_SLEEPING = 0,
+   EDI_DEBUG_PROCESS_ACTIVE
+} Edi_Debug_Process_State;
 
 typedef struct _Edi_Debug_Tool {
    const char *name;
@@ -46,7 +48,7 @@ typedef struct _Edi_Debug_Tool {
  *
  * @ingroup Debug
  */
-int edi_debug_process_id(Ecore_Exe *exe, const char *name, int *state);
+int edi_debug_process_id(Ecore_Exe *exe, const char *name, Edi_Debug_Process_State *state);
 
 /**
  * Obtain debugging info for given program name.
