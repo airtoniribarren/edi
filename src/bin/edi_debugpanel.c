@@ -29,7 +29,7 @@ typedef struct _Edi_Debug {
    char cmd[1024];
 } Edi_Debug;
 
-Edi_Debug *_debugger = NULL;
+static Edi_Debug *_debugger = NULL;
 
 static void
 _edi_debugpanel_line_cb(void *data EINA_UNUSED, const Efl_Event *event)
