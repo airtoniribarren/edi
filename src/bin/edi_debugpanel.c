@@ -280,17 +280,6 @@ void edi_debugpanel_start(const char *toolname)
         return;
      }
 
-   if (tool->external)
-     {
-        if (tool->arguments)
-          snprintf(_debugger_cmd, sizeof(_debugger_cmd), "%s %s", tool->exec, tool->arguments);
-        else
-          snprintf(_debugger_cmd, sizeof(_debugger_cmd), "%s", tool->exec);
-
-        ecore_exe_run(_debugger_cmd, NULL);
-        return;
-     }
-
    _program_name = ecore_file_file_get(_edi_project_config->launch.path);
 
    mime = efreet_mime_type_get(_edi_project_config->launch.path);

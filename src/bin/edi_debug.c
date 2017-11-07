@@ -21,13 +21,13 @@
 #include "edi_private.h"
 
 Edi_Debug_Tool _debugger_tools[] = {
-    { "gdb", "gdb", NULL, "run\n", "c\n", "set args %s", EINA_FALSE },
-    { "lldb", "lldb", NULL, "run\n", "c\n", "settings set target.run-args %s", EINA_FALSE },
-    { "pdb", "pdb", NULL, NULL, "c\n", "run %s", EINA_FALSE },
-    { "memcheck", "valgrind", "--tool=memcheck", NULL, NULL, NULL, EINA_FALSE },
-    { "massif", "valgrind", "--tool=massif", NULL, NULL, NULL, EINA_FALSE },
-    { "callgrind", "valgrind", "--tool=callgrind", NULL, NULL, NULL, EINA_FALSE },
-    { NULL, NULL, NULL, NULL, NULL, NULL, EINA_FALSE },
+    { "gdb", "gdb", NULL, "run\n", "c\n", "set args %s" },
+    { "lldb", "lldb", NULL, "run\n", "c\n", "settings set target.run-args %s" },
+    { "pdb", "pdb", NULL, NULL, "c\n", "run %s" },
+    { "memcheck", "valgrind", "--tool=memcheck", NULL, NULL, NULL },
+    { "massif", "valgrind", "--tool=massif", NULL, NULL, NULL },
+    { "callgrind", "valgrind", "--tool=callgrind", NULL, NULL, NULL },
+    { NULL, NULL, NULL, NULL, NULL, NULL },
 };
 
 Edi_Debug_Tool *edi_debug_tools_get(void)

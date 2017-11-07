@@ -24,7 +24,6 @@ typedef struct _Edi_Debug_Tool {
    const char *command_start;
    const char *command_continue;
    const char *command_arguments;
-   Eina_Bool  external;
 } Edi_Debug_Tool;
 
 /**
