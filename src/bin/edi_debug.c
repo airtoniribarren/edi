@@ -30,6 +30,19 @@ Edi_Debug_Tool _debugger_tools[] = {
     { NULL, NULL, NULL, NULL, NULL, NULL },
 };
 
+Edi_Debug *_debugger = NULL;
+
+Edi_Debug *edi_debug_new(void)
+{
+   _debugger = calloc(1, sizeof(Edi_Debug));
+   return _debugger;
+}
+
+Edi_Debug *edi_debug_get(void)
+{
+   return _debugger;
+}
+
 Edi_Debug_Tool *edi_debug_tools_get(void)
 {
    return _debugger_tools;

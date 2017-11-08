@@ -22,8 +22,6 @@ static Evas_Object *_info_widget, *_entry_widget, *_button_start, *_button_quit;
 static Evas_Object *_button_int, *_button_term;
 static Elm_Code *_debug_output;
 
-static Edi_Debug *_debugger = NULL;
-
 static void
 _edi_debugpanel_line_cb(void *data EINA_UNUSED, const Efl_Event *event)
 {
@@ -46,11 +44,15 @@ static Eina_Bool
 _debugpanel_stdout_handler(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Exe_Event_Data *ev;
+   Edi_Debug *debug;
    int idx;
    char *start, *end = NULL;
+
    ev = event;
 
-   if (ev->exe != _debugger->exe)
+   debug = edi_debug_get();
+
+   if (ev->exe != debug->exe)
      return ECORE_CALLBACK_RENEW;
 
    if (ev && ev->size)
@@ -93,6 +95,7 @@ _edi_debugpanel_keypress_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Ob
    const char *text_markup;
    char *command, *text;
    Eina_Bool res;
+   Edi_Debug *debug = edi_debug_get();
 
    event = event_info;
 
@@ -102,7 +105,7 @@ _edi_debugpanel_keypress_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Ob
 
    if (!strcmp(event->key, "Return"))
      {
-        if (!_debugger->exe) return;
+        if (!debug->exe) return;
 
         text_markup = elm_object_part_text_get(_entry_widget, NULL);
         text = elm_entry_markup_to_utf8(text_markup);
@@ -110,7 +113,7 @@ _edi_debugpanel_keypress_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Ob
           {
              command = malloc(strlen(text) + 2);
              snprintf(command, strlen(text) + 2, "%s\n", text);
-             res = ecore_exe_send(_debugger->exe, command, strlen(command));
+             res = ecore_exe_send(debug->exe, command, strlen(command));
              if (res)
                elm_code_file_line_append(_debug_output->file, command, strlen(command) - 1, NULL);
 
@@ -126,8 +129,12 @@ _edi_debugpanel_bt_sigterm_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUS
 {
    pid_t pid;
    Evas_Object *ico_int;
+   Edi_Debug *debug;
 
-   pid = edi_debug_process_id(_debugger);
+   debug = edi_debug_get();
+   if (!debug) return;
+
+   pid = edi_debug_process_id(debug);
    if (pid <= 0) return;
 
    ico_int = elm_icon_add(_button_int);
@@ -156,16 +163,20 @@ static void
 _edi_debugpanel_bt_sigint_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event EINA_UNUSED)
 {
    pid_t pid;
+   Edi_Debug *debug;
 
-   pid = edi_debug_process_id(_debugger);
+   debug = edi_debug_get();
+   if (!debug) return;
+
+   pid = edi_debug_process_id(debug);
    if (pid <= 0) return;
 
-   if (_debugger->state == EDI_DEBUG_PROCESS_ACTIVE)
+   if (debug->state == EDI_DEBUG_PROCESS_ACTIVE)
      kill(pid, SIGINT);
-   else if (_debugger->tool->command_continue)
-     ecore_exe_send(_debugger->exe, _debugger->tool->command_continue, strlen(_debugger->tool->command_continue));
+   else if (debug->tool->command_continue)
+     ecore_exe_send(debug->exe, debug->tool->command_continue, strlen(debug->tool->command_continue));
 
-    _edi_debugpanel_icons_update(_debugger->state);
+    _edi_debugpanel_icons_update(debug->state);
 }
 
 static void
@@ -184,12 +195,13 @@ static Eina_Bool
 _edi_debug_active_check_cb(void *data EINA_UNUSED)
 {
    int pid;
+   Edi_Debug *debug = edi_debug_get();
 
-   pid = ecore_exe_pid_get(_debugger->exe);
+   pid = ecore_exe_pid_get(debug->exe);
    if (pid == -1)
      {
-        if (_debugger->exe) ecore_exe_quit(_debugger->exe);
-        _debugger->exe = NULL;
+        if (debug->exe) ecore_exe_quit(debug->exe);
+        debug->exe = NULL;
         elm_object_disabled_set(_button_quit, EINA_TRUE);
         elm_object_disabled_set(_button_start, EINA_FALSE);
         elm_object_disabled_set(_button_int, EINA_TRUE);
@@ -197,8 +209,8 @@ _edi_debug_active_check_cb(void *data EINA_UNUSED)
      }
    else
      {
-        if (edi_debug_process_id(_debugger) > 0)
-          _edi_debugpanel_icons_update(_debugger->state);
+        if (edi_debug_process_id(debug) > 0)
+          _edi_debugpanel_icons_update(debug->state);
      }
 
    return ECORE_CALLBACK_RENEW;
@@ -206,16 +218,21 @@ _edi_debug_active_check_cb(void *data EINA_UNUSED)
 
 void edi_debugpanel_stop(void)
 {
+   Edi_Debug *debug;
    int pid;
 
-   if (_debugger->exe)
-     ecore_exe_terminate(_debugger->exe);
+   debug = edi_debug_get();
+   if (!debug)
+     return; 
 
-   pid = ecore_exe_pid_get(_debugger->exe);
+   if (debug->exe)
+     ecore_exe_terminate(debug->exe);
+
+   pid = ecore_exe_pid_get(debug->exe);
    if (pid != -1)
-     ecore_exe_quit(_debugger->exe);
+     ecore_exe_quit(debug->exe);
 
-   _debugger->exe = NULL;
+   debug->exe = NULL;
 
    elm_object_disabled_set(_button_quit, EINA_TRUE);
    elm_object_disabled_set(_button_int, EINA_TRUE);
@@ -223,35 +240,39 @@ void edi_debugpanel_stop(void)
 }
 
 static void
-_edi_debugger_run(void)
+_edi_debugger_run(Edi_Debug *debug)
 {
    const char *fmt;
    char *args;
    int len;
 
-   _debugger->exe = ecore_exe_pipe_run(_debugger->cmd, ECORE_EXE_PIPE_WRITE |
-                                                       ECORE_EXE_PIPE_ERROR |
-                                                       ECORE_EXE_PIPE_READ, NULL);
+   debug->exe = ecore_exe_pipe_run(debug->cmd, ECORE_EXE_PIPE_WRITE |
+                                               ECORE_EXE_PIPE_ERROR |
+                                               ECORE_EXE_PIPE_READ, NULL);
 
-   if (_debugger->tool->command_arguments && _edi_project_config->launch.args)
+   if (debug->tool->command_arguments && _edi_project_config->launch.args)
      {
-        fmt = _debugger->tool->command_arguments;
+        fmt = debug->tool->command_arguments;
         len = strlen(fmt) + strlen(_edi_project_config->launch.args) + 1;
         args = malloc(len);
         snprintf(args, len, fmt, _edi_project_config->launch.args);
-        ecore_exe_send(_debugger->exe, args, strlen(args));
+        ecore_exe_send(debug->exe, args, strlen(args));
         free(args);
      }
 
-   if (_debugger->tool->command_start)
-     ecore_exe_send(_debugger->exe, _debugger->tool->command_start, strlen(_debugger->tool->command_start));
+   if (debug->tool->command_start)
+     ecore_exe_send(debug->exe, debug->tool->command_start, strlen(debug->tool->command_start));
 }
 
-void edi_debugpanel_start(const char *toolname)
+void edi_debugpanel_start(const char *name)
 {
    const char *mime;
+   Edi_Debug *debug;
 
-   if (_debugger->exe) return;
+   debug = edi_debug_get();
+   if (!debug) return;
+
+   if (debug->exe) return;
 
    if (!_edi_project_config->launch.path)
      {
@@ -259,29 +280,31 @@ void edi_debugpanel_start(const char *toolname)
         return;
      }
 
-   _debugger->tool = edi_debug_tool_get(toolname);
-   if (!_debugger->tool)
+   debug->program_name = ecore_file_file_get(_edi_project_config->launch.path);
+
+   debug->tool = edi_debug_tool_get(name);
+   if (!debug->tool)
      {
         edi_debug_exe_missing();
         return;
      }
 
-   _debugger->program_name = ecore_file_file_get(_edi_project_config->launch.path);
-
    mime = efreet_mime_type_get(_edi_project_config->launch.path);
    if (mime && !strcmp(mime, "application/x-shellscript"))
-     snprintf(_debugger->cmd, sizeof(_debugger->cmd), LIBTOOL_COMMAND " --mode execute %s %s", _debugger->tool->exec, _edi_project_config->launch.path);
-   else if (_debugger->tool->arguments)
-     snprintf(_debugger->cmd, sizeof(_debugger->cmd), "%s %s %s", _debugger->tool->exec, _debugger->tool->arguments, _edi_project_config->launch.path);
+     snprintf(debug->cmd, sizeof(debug->cmd), LIBTOOL_COMMAND " --mode execute %s %s", debug->tool->exec, _edi_project_config->launch.path);
+   else if (debug->tool->arguments)
+     snprintf(debug->cmd, sizeof(debug->cmd), "%s %s %s", debug->tool->exec, debug->tool->arguments, _edi_project_config->launch.path);
    else
-     snprintf(_debugger->cmd, sizeof(_debugger->cmd), "%s %s", _debugger->tool->exec, _edi_project_config->launch.path);
+     snprintf(debug->cmd, sizeof(debug->cmd), "%s %s", debug->tool->exec, _edi_project_config->launch.path);
 
    elm_object_disabled_set(_button_int, EINA_FALSE);
    elm_object_disabled_set(_button_term, EINA_FALSE);
    elm_object_disabled_set(_button_quit, EINA_FALSE);
    elm_object_disabled_set(_button_start, EINA_TRUE);
 
-   _edi_debugger_run();
+   elm_code_file_clear(_debug_output->file);
+
+   _edi_debugger_run(debug);
 }
 
 void edi_debugpanel_add(Evas_Object *parent)
@@ -366,7 +389,7 @@ void edi_debugpanel_add(Evas_Object *parent)
    _info_widget = widget;
    _entry_widget = entry;
 
-   _debugger = calloc(1, sizeof(Edi_Debug));
+   edi_debug_new();
 
    timer = ecore_timer_add(1.0, _edi_debug_active_check_cb, NULL);
    (void) timer;

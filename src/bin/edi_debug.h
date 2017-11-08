@@ -45,6 +45,22 @@ typedef struct _Edi_Debug {
  */
 
 /**
+ * Initialise debugger internals.
+ *
+ * @return pointer to initialized debug instance.
+ *
+ * @ingroup Debug
+ */
+Edi_Debug *edi_debug_new(void);
+
+/**
+ * Obtain pointer to initialized debug instance.
+ *
+ * @ingroup Debug
+ */
+Edi_Debug *edi_debug_get(void);
+
+/**
  * Obtain process information of debugged process.
  *
  * @param debugger Edi_Debug instance.
