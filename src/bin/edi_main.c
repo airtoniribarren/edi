@@ -8,6 +8,7 @@
 
 #include <Ecore_Getopt.h>
 #include <Elementary.h>
+#include <Efl_Ui.h>
 #include <Eio.h>
 
 #include "Edi.h"
@@ -1486,7 +1487,9 @@ edi_open(const char *inputpath)
    elm_need_efreet();
 
    winname = _edi_win_title_get();
-   win = elm_win_util_standard_add("main", winname);
+   win = efl_add(EFL_UI_WIN_CLASS, NULL,
+                 efl_ui_win_type_set(efl_added, EFL_UI_WIN_BASIC),
+                 efl_text_set(efl_added, winname));
    free(winname);
    if (!win) return EINA_FALSE;
 
@@ -1502,6 +1505,12 @@ edi_open(const char *inputpath)
    evas_object_size_hint_align_set(hbx, EVAS_HINT_FILL, EVAS_HINT_FILL);
    elm_win_resize_object_add(win, hbx);
    evas_object_show(hbx);
+
+   if (_edi_project_config->gui.translucent)
+     {
+        efl_ui_win_alpha_set(win, EINA_TRUE);
+        efl_gfx_color_set(efl_part(win, "background"), 64, 64, 64, 192);
+     }
 
    tb = edi_toolbar_setup(hbx);
    elm_box_pack_start(hbx, tb);
