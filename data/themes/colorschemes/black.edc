@@ -1,5 +1,5 @@
 color_classes {
-    color_class { name: "elm/code/status/default"; color: 36 36 36 255; }
+    color_class { name: "elm/code/status/default"; color: 255 255 255 255; }
     color_class { name: "elm/code/status/current"; color: 12 12 12 255; }
     color_class { name: "elm/code/status/ignored"; color: 36 36 36 255; }
     color_class { name: "elm/code/status/note"; color: 221 119 17 255;  }

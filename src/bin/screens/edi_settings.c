@@ -142,11 +142,45 @@ _edi_settings_font_preview_add(Evas_Object *parent, const char *font_name, int f
    return widget;
 }
 
+static void
+_edi_settings_display_colors_pressed_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
+{
+   const char *text = elm_object_item_text_get(event_info);
+
+   if (_edi_project_config->gui.colorscheme)
+     eina_stringshare_del(_edi_project_config->gui.colorscheme);
+
+   _edi_project_config->gui.colorscheme = eina_stringshare_add(text);
+   _edi_project_config_save();
+
+   elm_object_text_set(obj, text);
+   elm_combobox_hover_end(obj);
+}
+
+static char *
+_edi_settings_display_colors_text_get_cb(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
+{
+   Edi_Colorscheme *current;
+   int i;
+
+   i = (int)(uintptr_t) data;
+   current = eina_list_nth(edi_colorschemes_get(), i);
+
+   if (!current) return NULL;
+
+   return strdup(current->name);
+}
+
 static Evas_Object *
 _edi_settings_display_create(Evas_Object *parent)
 {
    Evas_Object *box, *hbox, *frame, *label, *spinner, *check, *button, *preview;
    Evas_Object *table, *combobox;
+   Elm_Genlist_Item_Class *itc;
+   Edi_Colorscheme *colors;
+   Eina_List *colorschemes, *l;
+   int i = 0;
+
    frame = _edi_settings_panel_create(parent, _("Display"));
    box = elm_object_part_content_get(frame, "default");
 
@@ -174,38 +208,42 @@ _edi_settings_display_create(Evas_Object *parent)
 
    elm_object_focus_set(button, EINA_TRUE);
 
-
    label = elm_label_add(table);
    elm_object_text_set(label, _("Color theme"));
    evas_object_size_hint_align_set(label, EVAS_HINT_EXPAND, 0.5);
    elm_table_pack(table, label, 0, 1, 1, 1);
    evas_object_show(label);
 
-   combobox = elm_combobox_add(table);
+   // START OF COLOR SELECTOR
 
+   combobox = elm_combobox_add(table);
    evas_object_size_hint_weight_set(combobox, 0.75, 0.0);
    evas_object_size_hint_align_set(combobox, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(combobox);
-//   evas_object_smart_callback_add(combobox, "item,pressed",
- //                                _edi_settings_builds_debug_pressed_cb, NULL);
+   evas_object_smart_callback_add(combobox, "item,pressed",
+                                 _edi_settings_display_colors_pressed_cb, NULL);
+
+   if (!_edi_project_config->gui.colorscheme)
+     elm_object_text_set(combobox, _("default"));
+   else
+     elm_object_text_set(combobox, _edi_project_config->gui.colorscheme);
 
    elm_table_pack(table, combobox, 1, 1, 1, 1);
    elm_box_pack_end(box, table);
-/*
    itc = elm_genlist_item_class_new();
    itc->item_style = "default";
-   itc->func.text_get = _edi_settings_builds_debug_tool_text_get_cb;
+   itc->func.text_get = _edi_settings_display_colors_text_get_cb;
 
-   tools = edi_debug_tools_get();
-   for (i = 0; tools[i].name; i++)
+   colorschemes = edi_colorschemes_get();
+
+   EINA_LIST_FOREACH(colorschemes, l, colors)
      {
-        if (ecore_file_app_installed(tools[i].exec))
-          elm_genlist_item_append(combobox, itc, (void *)(uintptr_t) i, NULL, ELM_GENLIST_ITEM_NONE, NULL, (void *)(uintptr_t) i);
+        elm_genlist_item_append(combobox, itc, (void *)(uintptr_t) i, NULL, ELM_GENLIST_ITEM_NONE, NULL, (void *)(uintptr_t) i);
+        i++;
      }
 
    elm_genlist_realized_items_update(combobox);
    elm_genlist_item_class_free(itc);
-*/
 
    // END OF COLOR SELECTOR
 

@@ -1398,6 +1398,8 @@ edi_editor_add(Evas_Object *parent, Edi_Mainview_Item *item)
    elm_code_widget_line_numbers_set(widget, EINA_TRUE);
    _edi_editor_config_changed(widget, 0, NULL);
 
+   edi_colorscheme_set(widget, _edi_project_config->gui.colorscheme);
+
    editor = calloc(1, sizeof(*editor));
    editor->entry = widget;
    editor->mimetype = item->mimetype;
