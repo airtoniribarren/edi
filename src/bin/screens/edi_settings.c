@@ -146,35 +146,68 @@ static Evas_Object *
 _edi_settings_display_create(Evas_Object *parent)
 {
    Evas_Object *box, *hbox, *frame, *label, *spinner, *check, *button, *preview;
-
+   Evas_Object *table, *combobox;
    frame = _edi_settings_panel_create(parent, _("Display"));
    box = elm_object_part_content_get(frame, "default");
 
-   hbox = elm_box_add(parent);
-   elm_box_horizontal_set(hbox, EINA_TRUE);
-   evas_object_size_hint_weight_set(hbox, EVAS_HINT_EXPAND, 0.5);
-   evas_object_size_hint_align_set(hbox, EVAS_HINT_FILL, 1.0);
-   elm_box_pack_end(box, hbox);
-   evas_object_show(hbox);
+   table = elm_table_add(parent);
+   evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(table);
 
-   label = elm_label_add(hbox);
+   label = elm_label_add(table);
    elm_object_text_set(label, _("Font"));
    evas_object_size_hint_align_set(label, EVAS_HINT_EXPAND, 0.5);
-   elm_box_pack_end(hbox, label);
+   elm_table_pack(table, label, 0, 0, 1, 1);
    evas_object_show(label);
 
-   button = elm_button_add(hbox);
-   evas_object_size_hint_weight_set(button, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+   button = elm_button_add(table);
+   evas_object_size_hint_weight_set(button, EVAS_HINT_EXPAND, 0); // EVAS_HINT_EXPAND);
    evas_object_size_hint_align_set(button, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(button);
-   preview = _edi_settings_font_preview_add(hbox, _edi_project_config->font.name,
+   preview = _edi_settings_font_preview_add(table, _edi_project_config->font.name,
                                             _edi_project_config->font.size);
    elm_layout_content_set(button, "elm.swallow.content", preview);
-   elm_box_pack_end(hbox, button);
+   elm_table_pack(table, button, 1, 0, 1, 1);
    evas_object_smart_callback_add(button, "clicked",
                                   _edi_settings_font_choose_cb, parent);
 
    elm_object_focus_set(button, EINA_TRUE);
+
+
+   label = elm_label_add(table);
+   elm_object_text_set(label, _("Color theme"));
+   evas_object_size_hint_align_set(label, EVAS_HINT_EXPAND, 0.5);
+   elm_table_pack(table, label, 0, 1, 1, 1);
+   evas_object_show(label);
+
+   combobox = elm_combobox_add(table);
+
+   evas_object_size_hint_weight_set(combobox, 0.75, 0.0);
+   evas_object_size_hint_align_set(combobox, EVAS_HINT_FILL, EVAS_HINT_FILL);
+   evas_object_show(combobox);
+//   evas_object_smart_callback_add(combobox, "item,pressed",
+ //                                _edi_settings_builds_debug_pressed_cb, NULL);
+
+   elm_table_pack(table, combobox, 1, 1, 1, 1);
+   elm_box_pack_end(box, table);
+/*
+   itc = elm_genlist_item_class_new();
+   itc->item_style = "default";
+   itc->func.text_get = _edi_settings_builds_debug_tool_text_get_cb;
+
+   tools = edi_debug_tools_get();
+   for (i = 0; tools[i].name; i++)
+     {
+        if (ecore_file_app_installed(tools[i].exec))
+          elm_genlist_item_append(combobox, itc, (void *)(uintptr_t) i, NULL, ELM_GENLIST_ITEM_NONE, NULL, (void *)(uintptr_t) i);
+     }
+
+   elm_genlist_realized_items_update(combobox);
+   elm_genlist_item_class_free(itc);
+*/
+
+   // END OF COLOR SELECTOR
 
    check = elm_check_add(box);
    elm_object_text_set(check, _("Display whitespace"));
