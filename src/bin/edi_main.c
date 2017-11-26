@@ -323,6 +323,16 @@ _edi_toolbar_separator_add(Evas_Object *tb)
    elm_toolbar_item_separator_set(sep, EINA_TRUE);
 }
 
+static void
+_edi_color_class_part_set(Eo *obj, const char *part)
+{
+   int a, r, g, b;
+
+   edje_object_color_class_get(obj, part, &r, &g, &b, &a, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   edje_object_color_class_set(obj, part, r, g, b, a, 0, 0, 0, 0, 0, 0, 0, 0);
+   printf("r %d g %d b %d a %d\n", r, g, b, a);
+}
+
 void
 edi_colorscheme_set(Evas_Object *obj, const char *name)
 {
@@ -335,8 +345,11 @@ edi_colorscheme_set(Evas_Object *obj, const char *name)
      {
         if (!strcmp(c->name, name))
           {
-              edje_object_file_set(obj, c->path, "elm/code/status/default");
+              Eo *edje = elm_layout_edje_get(obj);
               printf("set path %s\n", c->path);
+              int res = elm_layout_file_set(edje, c->path, "elm/code/status/default"); //"elm/code/status/default");
+              printf("res is %d\n", res);
+              _edi_color_class_part_set(edje, "elm/code/status/default");
           }
      }
 }

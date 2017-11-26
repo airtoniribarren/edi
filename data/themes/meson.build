@@ -16,6 +16,8 @@ foreach theme_name : theme_names
      install: true,
   )
 
+   out = join_paths(get_option('prefix'), get_option('datadir'), 'edi', 'themes/') + theme_name + '.edj'
+   meson.add_install_script('../../scripts/world_read.sh', out)
 endforeach
 
 
