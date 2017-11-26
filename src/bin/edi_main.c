@@ -350,7 +350,8 @@ edi_colorscheme_set(Evas_Object *obj, const char *name)
           {
               Eo *edje = elm_layout_edje_get(obj);
               printf("set path %s\n", c->path);
-              int res = elm_layout_file_set(edje, c->path, NULL); // "elm/code/status/default"); //"elm/code/status/default");
+              int res = elm_layout_file_set(edje, c->path, NULL);
+              _edi_color_class_part_set(edje, "elm/code/status/default");
               printf("res is %d\n", res);
           }
      }
