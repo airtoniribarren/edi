@@ -339,6 +339,9 @@ edi_colorscheme_set(Evas_Object *obj, const char *name)
    Eina_List *l;
    Edi_Colorscheme *c;
 
+   if (!strcasecmp(name, "default"))
+     return;
+
    edi_colorschemes_get();
 
    EINA_LIST_FOREACH(_colorschemes, l, c)
@@ -347,9 +350,8 @@ edi_colorscheme_set(Evas_Object *obj, const char *name)
           {
               Eo *edje = elm_layout_edje_get(obj);
               printf("set path %s\n", c->path);
-              int res = elm_layout_file_set(edje, c->path, "elm/code/status/default"); //"elm/code/status/default");
+              int res = elm_layout_file_set(edje, c->path, NULL); // "elm/code/status/default"); //"elm/code/status/default");
               printf("res is %d\n", res);
-              _edi_color_class_part_set(edje, "elm/code/status/default");
           }
      }
 }
