@@ -77,7 +77,7 @@ struct _Edi_Project_Config
    struct
      {
         Eina_Bool translucent;
-        const char *colorscheme;
+        const char *theme;
         int width, height, bottomtab;
         double leftsize, bottomsize;
         Eina_Bool leftopen, bottomopen;
@@ -96,11 +96,6 @@ struct _Edi_Project_Config
    Eina_List *panels;
    Eina_List *windows;
 };
-
-typedef struct _Edi_Colorscheme {
-        char *name;
-        char *path;
-} Edi_Colorscheme;
 
 extern Edi_Config *_edi_config;
 extern Edi_Project_Config *_edi_project_config;

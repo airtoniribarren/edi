@@ -9,6 +9,7 @@
 #include "edi_screens.h"
 #include "edi_config.h"
 #include "edi_debug.h"
+#include "edi_theme.h"
 
 #include "edi_private.h"
 
@@ -147,10 +148,10 @@ _edi_settings_display_colors_pressed_cb(void *data EINA_UNUSED, Evas_Object *obj
 {
    const char *text = elm_object_item_text_get(event_info);
 
-   if (_edi_project_config->gui.colorscheme)
-     eina_stringshare_del(_edi_project_config->gui.colorscheme);
+   if (_edi_project_config->gui.theme)
+     eina_stringshare_del(_edi_project_config->gui.theme);
 
-   _edi_project_config->gui.colorscheme = eina_stringshare_add(text);
+   _edi_project_config->gui.theme = eina_stringshare_add(text);
    _edi_project_config_save();
 
    elm_object_text_set(obj, text);
@@ -160,11 +161,11 @@ _edi_settings_display_colors_pressed_cb(void *data EINA_UNUSED, Evas_Object *obj
 static char *
 _edi_settings_display_colors_text_get_cb(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
 {
-   Edi_Colorscheme *current;
+   Edi_Theme *current;
    int i;
 
    i = (int)(uintptr_t) data;
-   current = eina_list_nth(edi_colorschemes_get(), i);
+   current = eina_list_nth(edi_theme_themes_get(), i);
 
    if (!current) return NULL;
 
@@ -177,8 +178,8 @@ _edi_settings_display_create(Evas_Object *parent)
    Evas_Object *box, *hbox, *frame, *label, *spinner, *check, *button, *preview;
    Evas_Object *table, *combobox;
    Elm_Genlist_Item_Class *itc;
-   Edi_Colorscheme *colors;
-   Eina_List *colorschemes, *l;
+   Edi_Theme *theme;
+   Eina_List *themes, *l;
    int i = 0;
 
    frame = _edi_settings_panel_create(parent, _("Display"));
@@ -223,10 +224,10 @@ _edi_settings_display_create(Evas_Object *parent)
    evas_object_smart_callback_add(combobox, "item,pressed",
                                  _edi_settings_display_colors_pressed_cb, NULL);
 
-   if (!_edi_project_config->gui.colorscheme)
+   if (!_edi_project_config->gui.theme)
      elm_object_text_set(combobox, _("default"));
    else
-     elm_object_text_set(combobox, _edi_project_config->gui.colorscheme);
+     elm_object_text_set(combobox, _edi_project_config->gui.theme);
 
    elm_table_pack(table, combobox, 1, 1, 1, 1);
    elm_box_pack_end(box, table);
@@ -234,9 +235,9 @@ _edi_settings_display_create(Evas_Object *parent)
    itc->item_style = "default";
    itc->func.text_get = _edi_settings_display_colors_text_get_cb;
 
-   colorschemes = edi_colorschemes_get();
+   themes = edi_theme_themes_get();
 
-   EINA_LIST_FOREACH(colorschemes, l, colors)
+   EINA_LIST_FOREACH(themes, l, theme)
      {
         elm_genlist_item_append(combobox, itc, (void *)(uintptr_t) i, NULL, ELM_GENLIST_ITEM_NONE, NULL, (void *)(uintptr_t) i);
         i++;

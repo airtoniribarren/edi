@@ -57,10 +57,6 @@ Eina_Bool edi_noproject();
 void edi_launcher_config_missing();
 void edi_debug_exe_missing(void);
 
-Eina_List *edi_colorschemes_get(void);
-void edi_colorscheme_set(Evas_Object *obj, const char *name);
-
-
 Eina_Bool _edi_project_config_save_no_notify(void);
 
 #endif

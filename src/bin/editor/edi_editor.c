@@ -12,6 +12,7 @@
 #include "mainview/edi_mainview.h"
 #include "edi_filepanel.h"
 #include "edi_config.h"
+#include "edi_theme.h"
 
 #include "language/edi_language_provider.h"
 
@@ -1398,7 +1399,7 @@ edi_editor_add(Evas_Object *parent, Edi_Mainview_Item *item)
    elm_code_widget_line_numbers_set(widget, EINA_TRUE);
    _edi_editor_config_changed(widget, 0, NULL);
 
-   edi_colorscheme_set(widget, _edi_project_config->gui.colorscheme);
+   edi_theme_theme_set(widget, _edi_project_config->gui.theme);
 
    editor = calloc(1, sizeof(*editor));
    editor->entry = widget;

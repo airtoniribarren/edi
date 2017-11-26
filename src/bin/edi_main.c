@@ -56,8 +56,6 @@ static Evas_Object *_edi_menu_save, *_edi_toolbar_save;
 static Evas_Object *_edi_main_win, *_edi_main_box;
 int _edi_log_dom = -1;
 
-static Eina_List *_colorschemes = NULL;
-
 static void
 _edi_file_open_cb(const char *path, const char *type, Eina_Bool newwin)
 {
@@ -321,64 +319,6 @@ _edi_toolbar_separator_add(Evas_Object *tb)
    Evas_Object *sep;
    sep = elm_toolbar_item_append(tb, NULL, NULL, NULL, 0);
    elm_toolbar_item_separator_set(sep, EINA_TRUE);
-}
-
-void
-edi_colorscheme_set(Evas_Object *obj, const char *name)
-{
-   Eina_List *l;
-   Edi_Colorscheme *c;
-
-   if (!name || !strcasecmp(name, "default"))
-     return;
-
-   edi_colorschemes_get();
-
-   EINA_LIST_FOREACH(_colorschemes, l, c)
-     {
-        if (strcmp(c->name, name))
-          continue;
-
-        elm_layout_file_set(obj, c->path, "elm/code/layout/default");
-     }
-}
-
-Eina_List *
-edi_colorschemes_get(void)
-{
-   Eina_List *files;
-   Edi_Colorscheme *colors;
-   char *directory, *file, *name;
-
-   if (_colorschemes) return _colorschemes;
-
-   directory = PACKAGE_DATA_DIR "/themes";
-
-   colors = malloc(sizeof(Edi_Colorscheme));
-   colors->name = strdup("default");
-   colors->path = NULL;
-   _colorschemes = eina_list_append(_colorschemes, colors);
-
-   files = ecore_file_ls(directory);
-   EINA_LIST_FREE(files, file)
-     {
-        if (eina_str_has_extension(file, ".edj") && strcmp(file, "default.edj"))
-          {
-             colors = calloc(1, sizeof(Edi_Colorscheme));
-             name = strdup(file);
-             name[strlen(name) - 4] = '\0';
-             colors->name = name;
-
-             colors->path = edi_path_append(directory, file);
-             _colorschemes = eina_list_append(_colorschemes, colors);
-          }
-        free(file);
-     }
-
-   if (files)
-     eina_list_free(files);
-
-   return _colorschemes;
 }
 
 static Evas_Object *
