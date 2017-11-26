@@ -1,3 +1,26 @@
+collections {
+
+/* simple layout to pack our scrolling content into an elm_layout */
+group { name: "elm/code/layout/default";
+   data {
+      item: "font.name" "Mono";
+      item: "font.size" "10";
+   }
+   parts {
+      part { name: "elm.swallow.content"; type: SWALLOW;
+         description { state: "default" 0.0;
+            align: 0.5 0.0;
+            fixed: 0 1;
+
+            rel2 {
+               relative: 1.0 1.0;
+               offset: 0 0;
+            }
+         }
+      }
+   }
+}
+
 color_classes {
     color_class { name: "elm/code/status/default"; color: 0 0 0 255; }
     color_class { name: "elm/code/status/current"; color: 12 12 12 255; }
@@ -34,4 +57,5 @@ color_classes {
     color_class { name: "elm/code/widget/color/gutter/fg"; color: 139 139 139 255; }
     color_class { name: "elm/code/widget/color/gutter/scope/bg"; color: 54 54 54 255; }
     color_class { name: "elm/code/widget/color/whitespace"; color: 50 50 50 127; }
+}
 }

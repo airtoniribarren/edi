@@ -323,37 +323,23 @@ _edi_toolbar_separator_add(Evas_Object *tb)
    elm_toolbar_item_separator_set(sep, EINA_TRUE);
 }
 
-static void
-_edi_color_class_part_set(Eo *obj, const char *part)
-{
-   int a, r, g, b;
-
-   edje_object_color_class_get(obj, part, &r, &g, &b, &a, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-   edje_object_color_class_set(obj, part, r, g, b, a, 0, 0, 0, 0, 0, 0, 0, 0);
-   printf("r %d g %d b %d a %d\n", r, g, b, a);
-}
-
 void
 edi_colorscheme_set(Evas_Object *obj, const char *name)
 {
    Eina_List *l;
    Edi_Colorscheme *c;
 
-   if (!strcasecmp(name, "default"))
+   if (!name || !strcasecmp(name, "default"))
      return;
 
    edi_colorschemes_get();
 
    EINA_LIST_FOREACH(_colorschemes, l, c)
      {
-        if (!strcmp(c->name, name))
-          {
-              Eo *edje = elm_layout_edje_get(obj);
-              printf("set path %s\n", c->path);
-              int res = elm_layout_file_set(edje, c->path, NULL);
-              _edi_color_class_part_set(edje, "elm/code/status/default");
-              printf("res is %d\n", res);
-          }
+        if (strcmp(c->name, name))
+          continue;
+
+        elm_layout_file_set(obj, c->path, "elm/code/layout/default");
      }
 }
 
@@ -362,7 +348,7 @@ edi_colorschemes_get(void)
 {
    Eina_List *files;
    Edi_Colorscheme *colors;
-   char *directory, *file;
+   char *directory, *file, *name;
 
    if (_colorschemes) return _colorschemes;
 
@@ -376,10 +362,13 @@ edi_colorschemes_get(void)
    files = ecore_file_ls(directory);
    EINA_LIST_FREE(files, file)
      {
-        if (eina_str_has_extension(file, ".edj"))
+        if (eina_str_has_extension(file, ".edj") && strcmp(file, "default.edj"))
           {
              colors = calloc(1, sizeof(Edi_Colorscheme));
-             colors->name = strdup(file);
+             name = strdup(file);
+             name[strlen(name) - 4] = '\0';
+             colors->name = name;
+
              colors->path = edi_path_append(directory, file);
              _colorschemes = eina_list_append(_colorschemes, colors);
           }
