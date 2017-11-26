@@ -57,6 +57,7 @@ Eina_Bool edi_noproject();
 void edi_launcher_config_missing();
 void edi_debug_exe_missing(void);
 
+
 Eina_Bool _edi_project_config_save_no_notify(void);
 
 #endif
