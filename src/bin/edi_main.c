@@ -56,6 +56,7 @@ static Evas_Object *_edi_menu_save, *_edi_toolbar_save;
 static Evas_Object *_edi_main_win, *_edi_main_box;
 int _edi_log_dom = -1;
 
+
 static void
 _edi_file_open_cb(const char *path, const char *type, Eina_Bool newwin)
 {
