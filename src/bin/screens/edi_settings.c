@@ -144,7 +144,7 @@ _edi_settings_font_preview_add(Evas_Object *parent, const char *font_name, int f
 }
 
 static void
-_edi_settings_display_colors_pressed_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
+_edi_settings_display_theme_pressed_cb(void *data EINA_UNUSED, Evas_Object *obj, void *event_info)
 {
    const char *text = elm_object_item_text_get(event_info);
 
@@ -159,7 +159,7 @@ _edi_settings_display_colors_pressed_cb(void *data EINA_UNUSED, Evas_Object *obj
 }
 
 static char *
-_edi_settings_display_colors_text_get_cb(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
+_edi_settings_display_theme_text_get_cb(void *data, Evas_Object *obj EINA_UNUSED, const char *part EINA_UNUSED)
 {
    Edi_Theme *current;
    int i;
@@ -222,7 +222,7 @@ _edi_settings_display_create(Evas_Object *parent)
    evas_object_size_hint_align_set(combobox, EVAS_HINT_FILL, EVAS_HINT_FILL);
    evas_object_show(combobox);
    evas_object_smart_callback_add(combobox, "item,pressed",
-                                 _edi_settings_display_colors_pressed_cb, NULL);
+                                 _edi_settings_display_theme_pressed_cb, NULL);
 
    if (!_edi_project_config->gui.theme)
      elm_object_text_set(combobox, _("default"));
@@ -233,7 +233,7 @@ _edi_settings_display_create(Evas_Object *parent)
    elm_box_pack_end(box, table);
    itc = elm_genlist_item_class_new();
    itc->item_style = "default";
-   itc->func.text_get = _edi_settings_display_colors_text_get_cb;
+   itc->func.text_get = _edi_settings_display_theme_text_get_cb;
 
    themes = edi_theme_themes_get();
 
