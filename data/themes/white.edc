@@ -23,7 +23,7 @@ group { name: "elm/code/layout/default";
 
 color_classes {
     color_class { name: "elm/code/status/default"; color: 255 255 255 255; }
-    color_class { name: "elm/code/status/current"; color: 255 255 255 255; }
+    color_class { name: "elm/code/status/current"; color: 211 211 211 255; }
     color_class { name: "elm/code/status/ignored"; color: 0 0 0 255; }
     color_class { name: "elm/code/status/note"; color: 0 0 0 255;  }
     color_class { name: "elm/code/status/warning"; color: 0 0 0 255; }
