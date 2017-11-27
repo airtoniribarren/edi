@@ -15,7 +15,7 @@ edi_theme_theme_set(Evas_Object *obj, const char *name)
    Eina_List *l;
    Edi_Theme *theme;
 
-   if (!name || !strcasecmp(name, "default"))
+   if (!name)
      return;
 
    edi_theme_themes_get();
@@ -42,7 +42,7 @@ edi_theme_themes_get(void)
 
    theme = malloc(sizeof(Edi_Theme));
    theme->name = strdup("default");
-   theme->path = NULL;
+   theme->path = edi_path_append(elm_theme_system_dir_get(), "default.edj");
    _edi_themes = eina_list_append(_edi_themes, theme); 
 
    files = ecore_file_ls(directory);
