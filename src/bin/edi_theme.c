@@ -15,7 +15,7 @@ static Eina_List *_edi_themes = NULL;
 Efl_Ui_Theme_Apply efl_ui_widget_theme_apply(Eo *obj);
 
 void
-edi_theme_theme_set(Evas_Object *obj, const char *name)
+edi_theme_elm_code_set(Evas_Object *obj, const char *name)
 {
    Eina_List *l;
    Edi_Theme *theme;
@@ -49,7 +49,7 @@ edi_theme_themes_get(void)
    theme = malloc(sizeof(Edi_Theme));
    theme->name = strdup("default");
    theme->path = edi_path_append(elm_theme_system_dir_get(), "default.edj");
-   _edi_themes = eina_list_append(_edi_themes, theme); 
+   _edi_themes = eina_list_append(_edi_themes, theme);
 
    files = ecore_file_ls(directory);
    EINA_LIST_FREE(files, file)

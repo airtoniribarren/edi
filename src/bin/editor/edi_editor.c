@@ -1307,7 +1307,7 @@ _edi_editor_config_changed(void *data, int type EINA_UNUSED, void *event EINA_UN
    code->config.trim_whitespace = _edi_config->trim_whitespace;
 
    elm_obj_code_widget_font_set(widget, _edi_project_config->font.name, _edi_project_config->font.size);
-   edi_theme_theme_set(widget, _edi_project_config->gui.theme);
+   edi_theme_elm_code_set(widget, _edi_project_config->gui.theme);
    elm_obj_code_widget_show_whitespace_set(widget, _edi_project_config->gui.show_whitespace);
    elm_obj_code_widget_tab_inserts_spaces_set(widget, _edi_project_config->gui.tab_inserts_spaces);
    elm_obj_code_widget_line_width_marker_set(widget, _edi_project_config->gui.width_marker);
@@ -1400,7 +1400,7 @@ edi_editor_add(Evas_Object *parent, Edi_Mainview_Item *item)
    elm_code_widget_line_numbers_set(widget, EINA_TRUE);
    _edi_editor_config_changed(widget, 0, NULL);
 
-   edi_theme_theme_set(widget, _edi_project_config->gui.theme);
+   edi_theme_elm_code_set(widget, _edi_project_config->gui.theme);
 
    editor = calloc(1, sizeof(*editor));
    editor->entry = widget;

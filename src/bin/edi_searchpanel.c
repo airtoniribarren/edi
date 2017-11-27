@@ -26,7 +26,7 @@ static Eina_Bool
 _edi_searchpanel_config_changed_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event EINA_UNUSED)
 {
    elm_code_widget_font_set(_info_widget, _edi_project_config->font.name, _edi_project_config->font.size);
-   edi_theme_theme_set(_info_widget, _edi_project_config->gui.theme);
+   edi_theme_elm_code_set(_info_widget, _edi_project_config->gui.theme);
 
    return ECORE_CALLBACK_RENEW;
 }
@@ -235,7 +235,7 @@ edi_searchpanel_add(Evas_Object *parent)
    Elm_Code *code;
    code = elm_code_create();
    widget = elm_code_widget_add(parent, code);
-   edi_theme_theme_set(widget, _edi_project_config->gui.theme);
+   edi_theme_elm_code_set(widget, _edi_project_config->gui.theme);
    elm_obj_code_widget_font_set(widget, _edi_project_config->font.name, _edi_project_config->font.size);
    elm_obj_code_widget_gravity_set(widget, 0.0, 1.0);
    efl_event_callback_add(widget, ELM_OBJ_CODE_WIDGET_EVENT_LINE_CLICKED, _edi_searchpanel_line_clicked_cb, NULL);
@@ -264,7 +264,7 @@ static Eina_Bool
 _edi_taskspanel_config_changed_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event EINA_UNUSED)
 {
    elm_code_widget_font_set(_tasks_widget, _edi_project_config->font.name, _edi_project_config->font.size);
-   edi_theme_theme_set(_tasks_widget, _edi_project_config->gui.theme);
+   edi_theme_elm_code_set(_tasks_widget, _edi_project_config->gui.theme);
 
    return ECORE_CALLBACK_RENEW;
 }
@@ -304,7 +304,7 @@ edi_taskspanel_add(Evas_Object *parent)
    Elm_Code *code;
    code = elm_code_create();
    widget = elm_code_widget_add(parent, code);
-   edi_theme_theme_set(widget, _edi_project_config->gui.theme);
+   edi_theme_elm_code_set(widget, _edi_project_config->gui.theme);
    elm_obj_code_widget_font_set(widget, _edi_project_config->font.name, _edi_project_config->font.size);
    elm_obj_code_widget_gravity_set(widget, 0.0, 1.0);
    efl_event_callback_add(widget, &ELM_CODE_EVENT_LINE_LOAD_DONE, _edi_taskspanel_line_cb, NULL);
