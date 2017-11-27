@@ -2,12 +2,17 @@
 # include "config.h"
 #endif
 
+#include <Elementary.h>
+
 #include "Edi.h"
 #include "edi_theme.h"
 #include "edi_config.h"
 #include "edi_private.h"
 
 static Eina_List *_edi_themes = NULL;
+
+// we are hooking into Efl for now...
+Efl_Ui_Theme_Apply efl_ui_widget_theme_apply(Eo *obj);
 
 void
 edi_theme_theme_set(Evas_Object *obj, const char *name)
@@ -26,6 +31,7 @@ edi_theme_theme_set(Evas_Object *obj, const char *name)
           continue;
 
         elm_layout_file_set(obj, theme->path, "elm/code/layout/default");
+        efl_ui_widget_theme_apply(obj);
      }
 }
 

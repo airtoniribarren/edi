@@ -1,8 +1,6 @@
 #ifndef __EDI_THEME_H__
 #define __EDI_THEME_H__
 
-#include <Elementary.h>
-
 typedef struct _Edi_Theme {
         char *name;
         char *path;
