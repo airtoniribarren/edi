@@ -52,7 +52,7 @@ color_classes {
     color_class { name: "elm/code/token/changed"; color: 0 0 0 255; }
     color_class { name: "elm/code/token/match"; color: 0 0 0 255; }
 
-    color_class { name: "elm/code/widget/color/selection"; color: 211 211 211 255; }
+    color_class { name: "elm/code/widget/color/selection"; color: 169 169 169 255; }
     color_class { name: "elm/code/widget/color/gutter/bg"; color: 211 211 211 255; }
     color_class { name: "elm/code/widget/color/gutter/fg"; color: 21 21 21 255; }
     color_class { name: "elm/code/widget/color/gutter/scope/bg"; color: 255 255 255 255; }
