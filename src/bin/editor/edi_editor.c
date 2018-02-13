@@ -860,14 +860,14 @@ static void
 _edit_cursor_moved(void *data, Evas_Object *obj, void *event_info EINA_UNUSED)
 {
    Elm_Code_Widget *widget;
-   char buf[30];
+   char buf[64];
    unsigned int line;
    unsigned int col;
 
    widget = (Elm_Code_Widget *)obj;
    elm_code_widget_cursor_position_get(widget, &line, &col);
 
-   snprintf(buf, sizeof(buf), _("Line:%d, Column:%d"), line, col);
+   snprintf(buf, sizeof(buf), _("<font=monospace>Line:%5d, Column:%4d</>"), line, col);
    elm_object_text_set((Evas_Object *)data, buf);
 }
 
@@ -909,43 +909,45 @@ static void
 _edi_editor_statusbar_add(Evas_Object *panel, Edi_Editor *editor, Edi_Mainview_Item *item)
 {
    Edi_Language_Provider *provider;
-   Evas_Object *position, *mime, *lines;
+   Evas_Object *position, *info;
    Elm_Code *code;
+   char summary[128], out[256];
+   int i, len;
 
    elm_box_horizontal_set(panel, EINA_TRUE);
 
-   mime = elm_label_add(panel);
+   info = elm_label_add(panel);
+   evas_object_size_hint_align_set(info, 0.0, 0.5);
+   evas_object_size_hint_weight_set(info, 0.1, 0.0);
+   elm_object_disabled_set(info, EINA_TRUE);
+   evas_object_show(info);
+   elm_box_pack_end(panel, info);
+
    if (item->mimetype)
      {
         provider = edi_language_provider_get(editor);
         if (provider && provider->mime_name(item->mimetype))
-          {
-             char summary[1024];
-             sprintf(summary, "%s (%s)", provider->mime_name(item->mimetype), item->mimetype);
-             elm_object_text_set(mime, summary);
-          }
+          snprintf(summary, sizeof(summary), "%s (%s)", provider->mime_name(item->mimetype), item->mimetype);
         else
-          elm_object_text_set(mime, item->mimetype);
+          snprintf(summary, sizeof(summary), "%s", item->mimetype);
      }
    else
-     elm_object_text_set(mime, item->editortype);
-   evas_object_size_hint_align_set(mime, 0.0, 0.5);
-   evas_object_size_hint_weight_set(mime, 0.1, 0.0);
-   elm_box_pack_end(panel, mime);
-   evas_object_show(mime);
-   elm_object_disabled_set(mime, EINA_TRUE);
+     snprintf(summary, sizeof(summary), "%s", item->editortype);
 
-   lines = elm_label_add(panel);
    code = elm_code_widget_code_get(editor->entry);
    if (elm_code_file_line_ending_get(code->file) == ELM_CODE_FILE_LINE_ENDING_WINDOWS)
-     elm_object_text_set(lines, "WIN");
+     strcat(summary, "    WIN");
    else
-     elm_object_text_set(lines, "UNIX");
-   evas_object_size_hint_align_set(lines, 0.0, 0.5);
-   evas_object_size_hint_weight_set(lines, EVAS_HINT_EXPAND, 0.0);
-   elm_box_pack_end(panel, lines);
-   evas_object_show(lines);
-   elm_object_disabled_set(lines, EINA_TRUE);
+     strcat(summary, "    UNIX");
+
+   len = strlen(summary);
+   out[0] = 0x00;
+   strcat(out, "<font=monospace>");
+   strcat(out, summary);
+   for (i = len; i < 64; i++)
+     strcat(out, " ");
+   strcat(out, "</>");
+   elm_object_text_set(info, out);
 
    position = elm_label_add(panel);
    evas_object_size_hint_align_set(position, 1.0, 0.5);
