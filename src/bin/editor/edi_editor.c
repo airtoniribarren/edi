@@ -944,7 +944,7 @@ _edi_editor_statusbar_add(Evas_Object *panel, Edi_Editor *editor, Edi_Mainview_I
    out[0] = 0x00;
    strcat(out, "<font=monospace>");
    strcat(out, summary);
-   for (i = len; i < 64; i++)
+   for (i = len; i < 48; i++)
      strcat(out, " ");
    strcat(out, "</>");
    elm_object_text_set(info, out);
