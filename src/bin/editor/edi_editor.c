@@ -1303,6 +1303,8 @@ _edi_editor_config_changed(void *data, int type EINA_UNUSED, void *event EINA_UN
    Elm_Code_Widget *widget;
    Elm_Code *code;
 
+   if (!data) return ECORE_CALLBACK_RENEW;
+
    widget = (Elm_Code_Widget *) data;
    code = elm_code_widget_code_get(widget);
 

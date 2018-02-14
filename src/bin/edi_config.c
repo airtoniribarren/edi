@@ -630,6 +630,8 @@ _edi_project_config_tab_remove(const char *path, Eina_Bool windowed, int panel_i
    *tabs = eina_list_remove(*tabs, tab);
    _edi_project_config_save_no_notify();
 
+   if (!tab) return;
+
    eina_stringshare_del(tab->path);
    eina_stringshare_del(tab->fullpath);
    if (tab->type)

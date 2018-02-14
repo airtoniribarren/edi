@@ -1398,7 +1398,7 @@ _edi_file_saved(void *data EINA_UNUSED, int type EINA_UNUSED, void *event EINA_U
    return ECORE_CALLBACK_RENEW;
 }
 
-void
+static void
 _edi_open_tabs()
 {
    Edi_Project_Config_Panel *panel;
