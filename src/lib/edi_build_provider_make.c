@@ -143,7 +143,7 @@ _make_run(const char *path, const char *args)
 
    if (!args)
      {
-       edi_exe_project_run(path, ECORE_EXE_PIPE_READ_LINE_BUFFERED | ECORE_EXE_PIPE_READ |
+        edi_exe_project_run(path, ECORE_EXE_PIPE_READ_LINE_BUFFERED | ECORE_EXE_PIPE_READ |
                                  ECORE_EXE_PIPE_ERROR_LINE_BUFFERED | ECORE_EXE_PIPE_ERROR |
                                  ECORE_EXE_PIPE_WRITE | ECORE_EXE_USE_SH, NULL);
 
