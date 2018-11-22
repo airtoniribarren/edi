@@ -85,7 +85,7 @@ _edi_active_process_check_cb(EINA_UNUSED void *data)
    Edi_Proc_Stats *stats;
    pid_t pid;
 
-   // Check debug state.
+   // Check debugpanel state.
    edi_debugpanel_active_check();
 
    pid = edi_exe_project_pid_get();
@@ -98,7 +98,9 @@ _edi_active_process_check_cb(EINA_UNUSED void *data)
    stats = edi_process_stats_by_pid(pid);
    if (!stats)
      {
-        edi_exe_project_pid_set(-1);
+        // Our process is not running, reset PID we
+        // track.
+        edi_exe_project_pid_reset();
         _edi_active_process_running_set(EINA_FALSE);
         return ECORE_CALLBACK_RENEW;
      }

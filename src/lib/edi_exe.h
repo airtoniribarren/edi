@@ -83,11 +83,9 @@ EAPI pid_t edi_exe_project_run(const char *command, int flags, void *data);
 EAPI pid_t edi_exe_project_pid_get(void);
 
 /**
- * Set the process ID of the program-wide process.
- *
- * @param pid The pid value to set.
+ * Reset the project PID to inactive state.
  */
-EAPI void edi_exe_project_pid_set(pid_t pid);
+EAPI void edi_exe_project_pid_reset(void);
 
 /**
  * @}

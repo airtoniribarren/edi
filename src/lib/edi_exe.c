@@ -188,9 +188,9 @@ edi_exe_response(const char *command)
 static pid_t _project_pid = -1;
 
 void
-edi_exe_project_pid_set(pid_t pid)
+edi_exe_project_pid_reset()
 {
-   _project_pid = pid;
+   _project_pid = -1;
 }
 
 pid_t
@@ -206,7 +206,7 @@ edi_exe_project_run(const char *command, int flags, void *data)
 
    exe = ecore_exe_pipe_run(command, flags, data);
 
-   edi_exe_project_pid_set(ecore_exe_pid_get(exe));
+   _project_pid = ecore_exe_pid_get(exe);
 
-   return edi_exe_project_pid_get();
+   return _project_pid;
 }
