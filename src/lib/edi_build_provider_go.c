@@ -70,7 +70,7 @@ static void
 _go_run(const char *path EINA_UNUSED, const char *args EINA_UNUSED)
 {
    char *full_cmd;
-   int full_len;
+   int full_len, len, flags;
 
    if (!path) return;
    if (chdir(edi_project_get()) !=0)
@@ -80,11 +80,24 @@ _go_run(const char *path EINA_UNUSED, const char *args EINA_UNUSED)
    if (args)
      full_len += strlen(args);
    full_cmd = malloc(sizeof(char) * (full_len + 1));
-   snprintf(full_cmd, full_len + 1, "go run %s %s", path, args?args:"");
 
-   ecore_exe_pipe_run(full_cmd, ECORE_EXE_PIPE_READ_LINE_BUFFERED | ECORE_EXE_PIPE_READ |
-                                ECORE_EXE_PIPE_ERROR_LINE_BUFFERED | ECORE_EXE_PIPE_ERROR |
-                                ECORE_EXE_PIPE_WRITE | ECORE_EXE_USE_SH, NULL);
+   flags = ECORE_EXE_PIPE_READ_LINE_BUFFERED | ECORE_EXE_PIPE_READ |
+           ECORE_EXE_PIPE_ERROR_LINE_BUFFERED | ECORE_EXE_PIPE_ERROR |
+           ECORE_EXE_PIPE_WRITE;
+
+   len = strlen(path);
+
+   if (path[len - 3] == '.' && path[len - 2] == 'g' && path[len - 1] == 'o')
+     {
+        snprintf(full_cmd, full_len + 1, "go run %s %s", path, args?args:"");
+        flags |= ECORE_EXE_USE_SH;
+     }
+   else
+     {
+        snprintf(full_cmd, full_len + 1, "%s", path);
+     }
+
+   edi_exe_project_run(full_cmd, flags, NULL);
 
    free(full_cmd);
 }
