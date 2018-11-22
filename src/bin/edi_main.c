@@ -86,7 +86,7 @@ _edi_active_process_check_cb(EINA_UNUSED void *data)
    pid_t pid;
 
    // Check debug state.
-   edi_debug_active_check();
+   edi_debugpanel_active_check();
 
    pid = edi_exe_project_pid_get();
    if (pid == -1)

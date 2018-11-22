@@ -52,7 +52,7 @@ void edi_debugpanel_stop();
  *
  * @ingroup UI
  */
-void edi_debug_active_check(void);
+void edi_debugpanel_active_check(void);
 
 
 /**

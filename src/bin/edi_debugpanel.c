@@ -198,7 +198,7 @@ _edi_debugpanel_button_start_cb(void *data EINA_UNUSED, Evas_Object *obj EINA_UN
 }
 
 void
-edi_debug_active_check(void)
+edi_debugpanel_active_check(void)
 {
    Edi_Debug *debug;
    int pid;
