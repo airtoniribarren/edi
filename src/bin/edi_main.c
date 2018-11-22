@@ -61,7 +61,7 @@ static Evas_Object *_edi_toolbar_run, *_edi_toolbar_terminate;
 int _edi_log_dom = -1;
 
 static void
-_edi_project_process_state_set(Eina_Bool enabled)
+_edi_active_process_running_set(Eina_Bool enabled)
 {
    if (enabled)
      {
@@ -80,15 +80,18 @@ _edi_project_process_state_set(Eina_Bool enabled)
 }
 
 static Eina_Bool
-_edi_project_process_active_check_cb(EINA_UNUSED void *data)
+_edi_active_process_check_cb(EINA_UNUSED void *data)
 {
    Edi_Proc_Stats *stats;
    pid_t pid;
 
+   // Check debug state.
+   edi_debug_active_check();
+
    pid = edi_exe_project_pid_get();
    if (pid == -1)
      {
-        _edi_project_process_state_set(EINA_FALSE);
+        _edi_active_process_running_set(EINA_FALSE);
         return ECORE_CALLBACK_RENEW;
      }
 
@@ -96,13 +99,13 @@ _edi_project_process_active_check_cb(EINA_UNUSED void *data)
    if (!stats)
      {
         edi_exe_project_pid_set(-1);
-        _edi_project_process_state_set(EINA_FALSE);
+        _edi_active_process_running_set(EINA_FALSE);
         return ECORE_CALLBACK_RENEW;
      }
 
    free(stats);
 
-   _edi_project_process_state_set(EINA_TRUE);
+   _edi_active_process_running_set(EINA_TRUE);
 
    return ECORE_CALLBACK_RENEW;
 }
@@ -1656,7 +1659,7 @@ edi_open(const char *inputpath)
    ecore_event_handler_add(EDI_EVENT_TAB_CHANGED, _edi_tab_changed, NULL);
    ecore_event_handler_add(EDI_EVENT_FILE_CHANGED, _edi_file_changed, NULL);
    ecore_event_handler_add(EDI_EVENT_FILE_SAVED, _edi_file_saved, NULL);
-   ecore_timer_add(1.0, _edi_project_process_active_check_cb, NULL);
+   ecore_timer_add(1.0, _edi_active_process_check_cb, NULL);
 
    ERR("Loaded project at %s", path);
    evas_object_resize(win, _edi_project_config->gui.width * elm_config_scale_get(),
