@@ -73,12 +73,14 @@ _go_run(const char *path EINA_UNUSED, const char *args EINA_UNUSED)
    int full_len, len, flags;
 
    if (!path) return;
+
    if (chdir(edi_project_get()) !=0)
      ERR("Could not chdir");
 
    full_len = strlen(path) + 8;
    if (args)
      full_len += strlen(args);
+
    full_cmd = malloc(sizeof(char) * (full_len + 1));
 
    flags = ECORE_EXE_PIPE_READ_LINE_BUFFERED | ECORE_EXE_PIPE_READ |
@@ -87,7 +89,9 @@ _go_run(const char *path EINA_UNUSED, const char *args EINA_UNUSED)
 
    len = strlen(path);
 
-   if (path[len - 3] == '.' && path[len - 2] == 'g' && path[len - 1] == 'o')
+   //  We may want to run a binary or via the go command.
+   //  Simple and quicker to test for file extension.
+   if (len > 3 && path[len - 3] == '.' && path[len - 2] == 'g' && path[len - 1] == 'o')
      {
         snprintf(full_cmd, full_len + 1, "go run %s %s", path, args?args:"");
         flags |= ECORE_EXE_USE_SH;
