@@ -61,9 +61,9 @@ static Evas_Object *_edi_toolbar_run, *_edi_toolbar_terminate;
 int _edi_log_dom = -1;
 
 static void
-_edi_active_process_running_set(Eina_Bool enabled)
+_edi_active_process_icons_set(Eina_Bool active)
 {
-   if (enabled)
+   if (active)
      {
         elm_object_disabled_set(_edi_toolbar_run, EINA_TRUE);
         elm_object_disabled_set(_edi_toolbar_terminate, EINA_FALSE);
@@ -91,7 +91,7 @@ _edi_active_process_check_cb(EINA_UNUSED void *data)
    pid = edi_exe_project_pid_get();
    if (pid == -1)
      {
-        _edi_active_process_running_set(EINA_FALSE);
+        _edi_active_process_icons_set(EINA_FALSE);
         return ECORE_CALLBACK_RENEW;
      }
 
@@ -101,13 +101,13 @@ _edi_active_process_check_cb(EINA_UNUSED void *data)
         // Our process is not running, reset PID we
         // track.
         edi_exe_project_pid_reset();
-        _edi_active_process_running_set(EINA_FALSE);
+        _edi_active_process_icons_set(EINA_FALSE);
         return ECORE_CALLBACK_RENEW;
      }
 
    free(stats);
 
-   _edi_active_process_running_set(EINA_TRUE);
+   _edi_active_process_icons_set(EINA_TRUE);
 
    return ECORE_CALLBACK_RENEW;
 }
