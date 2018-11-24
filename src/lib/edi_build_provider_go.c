@@ -69,8 +69,9 @@ _go_test(void)
 static void
 _go_run(const char *path EINA_UNUSED, const char *args EINA_UNUSED)
 {
+   const char *ext;
    char *full_cmd;
-   int full_len, len, flags;
+   int full_len, flags;
 
    if (!path) return;
 
@@ -87,11 +88,11 @@ _go_run(const char *path EINA_UNUSED, const char *args EINA_UNUSED)
            ECORE_EXE_PIPE_ERROR_LINE_BUFFERED | ECORE_EXE_PIPE_ERROR |
            ECORE_EXE_PIPE_WRITE;
 
-   len = strlen(path);
+   ext = strrchr(path, '.');
 
    //  We may want to run a binary or via the go command.
    //  Simple and quicker to test for file extension.
-   if (len > 3 && path[len - 3] == '.' && path[len - 2] == 'g' && path[len - 1] == 'o')
+   if (ext && !strcasecmp(ext, ".go"))
      {
         snprintf(full_cmd, full_len + 1, "go run %s %s", path, args?args:"");
         flags |= ECORE_EXE_USE_SH;
