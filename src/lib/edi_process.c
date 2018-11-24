@@ -142,7 +142,7 @@ edi_process_stats_by_pid(int pid)
    char path[PATH_MAX];
    char line[4096];
    char state, program_name[1024];
-   int res, dummy, utime, stime, cutime, cstime, uid, psr;
+   int res, dummy, utime, stime, cutime, cstime, uid, psr, ppid;
    unsigned int mem_size, mem_rss, pri, nice, numthreads;
 
    snprintf(path, sizeof(path), "/proc/%d/stat", pid);
@@ -160,7 +160,7 @@ edi_process_stats_by_pid(int pid)
         program_name[end - start] = '\0';
 
         res = sscanf(end + 2, "%c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u %d %d %d %d %d %d %d %d %d",
-                     &state, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &utime, &stime, &cutime, &cstime,
+                     &state, &ppid, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &utime, &stime, &cutime, &cstime,
                      &pri, &nice, &numthreads, &dummy, &dummy, &mem_size, &mem_rss, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy,
                      &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &psr, &dummy, &dummy, &dummy, &dummy, &dummy);
      }
@@ -185,6 +185,7 @@ edi_process_stats_by_pid(int pid)
 
    Edi_Proc_Stats *p = calloc(1, sizeof(Edi_Proc_Stats));
    p->pid = pid;
+   p->ppid = ppid;
    p->uid = uid;
    p->cpu_id = psr;
    snprintf(p->command, sizeof(p->command), "%s", program_name);
@@ -222,6 +223,7 @@ edi_process_stats_by_pid(int pid)
 
    Edi_Proc_Stats *p = malloc(sizeof(Edi_Proc_Stats));
    p->pid = kp->p_pid;
+   p->ppid = kp->p_ppid;
    p->uid = kp->p_uid;
    p->cpu_id = kp->p_cpuid;
    snprintf(p->command, sizeof(p->command), "%s", kp->p_comm);
@@ -267,6 +269,7 @@ edi_process_stats_by_pid(int pid)
 
    Edi_Proc_Stats *p = calloc(1, sizeof(Edi_Proc_Stats));
    p->pid = pid;
+   p->ppid = taskinfo.pbsd.pbi_ppid;
    p->uid = taskinfo.pbsd.pbi_uid;
    p->cpu_id = workqueue.pwq_nthreads;
    snprintf(p->command, sizeof(p->command), "%s", taskinfo.pbsd.pbi_comm);
@@ -306,6 +309,7 @@ edi_process_stats_by_pid(int pid)
 
    Edi_Proc_Stats *p = calloc(1, sizeof(Edi_Proc_Stats));
    p->pid = kp.ki_pid;
+   p->ppid = kp.ki_ppid;
    p->uid = kp.ki_uid;
    snprintf(p->command, sizeof(p->command), "%s", kp.ki_comm);
    p->cpu_id = kp.ki_oncpu;

@@ -29,6 +29,7 @@
 typedef struct _Edi_Proc_Stats
 {
    pid_t       pid;
+   pid_t       ppid;
    uid_t       uid;
    int8_t      nice;
    int8_t      priority;
